@@ -1,0 +1,381 @@
+<!--suppress JSAnnotator -->
+<template>
+	<div class="page " data-name="service-interval-list">
+		<!-- page-with-subnavbar -->
+		<!-- Top Navbar -->
+		<div class="navbar">
+			<div class="navbar-bg"></div>
+			<div class="navbar-inner">
+				<div class="left">
+					<a href="#" class="link icon-only back">
+						<i class="if-not-ios f7-icons icon-header-arrow-back"></i>
+						<i class="if-ios icon icon-back"></i>
+					</a>
+					<!--<a href="/panel-left/" class="link icon-only " >
+                        <i class="if-not-ios f7-icons icon-header-menu"></i>
+                        <i class="if-ios icon material-icons">menu</i>
+                    </a>-->
+				</div>
+				<div class="title sliding">
+					Service Intervals
+				</div>
+				<div class="right">
+					<a href="/service-interval-history/?imei={{IMEI}}" class="link icon-only ">
+						<i class="f7-icons icon-live-date"></i>
+					</a>
+
+				</div>
+				<!--~~<div class="subnavbar">
+                    <form class="searchbar searchbar-automated-reports">
+                        <div class="searchbar-inner">
+                            <div class="searchbar-input-wrap">
+                                <input type="search" placeholder="{{@global.LANGUAGE.COM_MSG002}}" title="{{@global.LANGUAGE.COM_MSG002}}">
+                                <i class="searchbar-icon"></i>
+                                <span class="input-clear-button"></span>
+                            </div>
+                            <span class="searchbar-disable-button text-color-gray">{{@global.LANGUAGE.COM_MSG001}}</span>
+                        </div>
+                    </form>
+                </div>-->
+			</div>
+		</div>
+
+
+
+		<div class="page-content">
+			<div class="searchbar-backdrop"></div>
+
+			<div class="block searchbar-not-found text-color-white">
+				<div class="block-inner">{{@global.LANGUAGE.PROMPT_MSG000}}</div>
+			</div>
+
+			<!--{{#unless DataLoaded}}
+            <div key="skeleton-virtual-list" class="list media-list no-hairlines no-chevron no-margin-top">
+                <ul>
+                    {{#each '123'}}
+                    <li>
+                        <a href="#" class="item-link item-content asset skeleton-text skeleton-effect-blink" >
+                            <div class="item-inner">
+                                <div class="item-title-row align-items-center">
+                                    <div class="item-title">
+                                        Report Name
+                                    </div>
+                                    <div class="item-after">
+                                        ic
+                                    </div>
+                                </div>
+                                <div class="item-text">
+                                    status
+                                </div>
+                            </div>
+                        </a>
+                    </li>
+                    {{/each}}
+                </ul>
+            </div>
+            {{else}}
+            <div key="hide-on-search-block" class="block searchbar-hide-on-search text-align-center">{{PageHeaderDescription}}</div>
+            {{/unless}}-->
+
+			<div
+				class="list media-list virtual-list no-chevron no-margin-top no-hairline-bottom searchbar-found serviceIntervalList">
+				<!-- keep it empty -->
+			</div>
+
+		</div>
+
+	</div>
+</template>
+
+
+<script>
+	// script must return component object
+	return {
+		data: function () {
+			let self = this;
+			let imei = decodeURIComponent(self.$route.query.imei);
+			let asset = POSINFOASSETLIST[imei];
+			let afs = Protocol.Helper.getAssetStateInfo(asset);
+
+			let ret = {
+				SupportPhone: self.$root.AppDetails.supportPhone,
+				PageHeaderDescription: LANGUAGE.PROMPT_MSG043.format(LANGUAGE.PROMPT_MSG089),
+				IMEI: asset.IMEI,
+				MileageValue: asset.posInfo.mileage,
+				Mileage: afs.mileage ? afs.mileage.value : LANGUAGE.COM_MSG031,
+				EngineHours: afs.mileage ? afs.engineHours.value : LANGUAGE.COM_MSG031
+			};
+
+			return ret;
+		},
+		methods: {
+			initList: function (list = []) {
+				let self = this;
+
+				let listEl = self.$el.find('.serviceIntervalList');
+
+				if (list.length) {
+					list = list.filter(function (itm) {
+						return itm.Assets.findIndex(el => el.IMEI === self.IMEI);
+					});
+				}
+
+				/*if(list.length){
+                    list = list.map(el => el.IntervalTypeName == el.IntervalType);
+                }*/
+
+				//console.log(list)
+
+				self.VirtualList = self.$app.virtualList.create({
+					el: listEl,
+					items: list,
+					//cache: false,
+					searchAll: function (query, items) {
+						let found = [];
+						for (let i = 0; i < items.length; i++) {
+							if (items[i].Name.toLowerCase().indexOf(query.toLowerCase()) >= 0 || query.trim() === '') found.push(i);
+						}
+						return found; //return array with mathced indexes
+					},
+					height: function (item) {
+						return self.$app.device.ios ? 66 : 73
+					},
+					renderItem: function (item, index) {
+						let ret = `
+                            <li data-index="${index}" data-code="${item.Code}" data-state="${item.IntervalType}" data-name="${item.Name}">`;
+
+						let dangerValue = 0
+						let serviceName = item.ServiceType === 1 ? 'Engine service' : item.ServiceType === 2 ? 'Tyre service' : item.ServiceType === 3 ? 'Registration' : item.ServiceType === 4 ? 'Insurance' : 'Custom'
+						let currentIntervalValue = ''
+
+						switch (item.IntervalType) {
+							case 1: //engine hours 
+								console.log('hour', self.EngineHours, item.EarlyWarningValue, item.IntervalValue)
+								currentIntervalValue = self.EngineHours
+								dangerValue = +self.EngineHours.split(':')[0] > +item.IntervalValue ? 3 : +self.EngineHours.split(':')[0] > +item.EarlyWarningValue.split(':')[0] ? 2 : 1
+								break;
+							case 2: //mileage 
+								console.log('mileage', self.MileageValue, item.EarlyWarningValue, item.IntervalValue)
+								currentIntervalValue = self.Mileage
+								dangerValue = +self.MileageValue.split(' ')[0] > +item.IntervalValue ? 3 : +self.MileageValue.split(' ')[0] > +item.EarlyWarningValue.split(':')[0] ? 2 : 1
+								break;
+							case 3: case 4: //date
+								console.log('date', item.EarlyWarningValue, item.IntervalValue)
+								currentIntervalValue = item.IntervalValue
+								dangerValue = +moment.duration(Protocol.Helper.getDifferenceBTtwoDates(item.IntervalValue, moment()), "milliseconds") > 0 ? 3 : +moment.duration(Protocol.Helper.getDifferenceBTtwoDates(item.EarlyWarningValue, moment()), "milliseconds") > 0 ? 2 : 1
+								break;
+						}
+
+						if (!currentIntervalValue) {
+							dangerValue = 0;
+						}
+
+						ret += `  <a data-code="${item.Code}" href="#" class="item-link item-content itemIntervalMenu">
+                                    <div class="item-media">
+										<i class="f7-icons icon-tools ${ dangerValue === 3 ? 'interval-3' : dangerValue === 2 ? 'interval-2' : dangerValue === 1 ? 'interval-1' : 'interval-4'}"></i>
+									</div>
+									<div class="item-inner">
+                                        <div class="item-title-row">
+                                            <div class="item-title ${ dangerValue === 3 ? 'interval-3' : dangerValue === 2 ? 'interval-2' : dangerValue === 1 ? 'interval-1' : 'interval-4'}">${item.Name} (${currentIntervalValue})</div>
+                                            <div class="item-after"><i class="f7-icons icon-live-arrow text-color-lightgray size-18"></i></div>
+                                        </div>
+                                        <div class="item-text text-color-black">${ serviceName}</div>
+                                    </div>
+                                </a>
+                            </li>`;
+						return ret;
+					},
+					emptyTemplate: `<li class="item-content">${LANGUAGE.COM_MSG040}</li>`
+				});
+
+				self.$setState({
+					DataLoaded: true
+				});
+				self.initSearchForm();
+			},
+			callTo: function (phone) {
+				this.$app.methods.callTo(phone)
+			},
+			initSearchForm: function () {
+				let self = this;
+				self.$tick().then(() => {
+					self.Searchbar = self.$app.searchbar.create({
+						el: $$(self.$app.navbar.getElByPage(self.$el)).find('.searchbar-automated-reports'),
+						searchContainer: self.$el.find('.serviceIntervalList'),
+						searchIn: '.item-title',
+					});
+				})
+			},
+			changeItemState: function (code, state) {
+				let self = this;
+
+				let report = false;
+				let reportList = self.$app.methods.getFromStorage('automatedReportList');
+				if (reportList && reportList.length) {
+					report = reportList.find(r => r.Code === code);
+				}
+				if (!report) {
+					return;
+				}
+
+				let data = {
+					MinorToken: self.$app.data.MinorToken,
+					MajorToken: self.$app.data.MajorToken,
+
+					Code: code,
+					State: state ? 1 : 0,
+					Type: report.Type,
+					Name: report.Name,
+					IntervalType: report.ExecuteType,
+					IntervalValue: report.ExecuteDay,
+					Assets: report.AssetList ? report.AssetList.toString() : report.AssetList,
+					NotifyEmails: report.ContactList ? report.ContactList.toString() : report.ContactList,
+					Remark: report.Content
+				}
+				self.$app.preloader.show();
+				self.$app.request.promise.post(API_URL.AUTOMATED_REPORT_EDIT, data, 'json')
+					.then(function (result) {
+						if (result.data.MajorCode === '000') {
+							mainView.router.refreshPage();
+						} else if (result.data.MajorCode === '100' && result.data.MinorCode === '1003') {
+							self.$app.methods.customDialog({ title: LANGUAGE.PROMPT_MSG039, text: LANGUAGE.PROMPT_MSG040 });
+						} else {
+							self.$app.dialog.alert(LANGUAGE.PROMPT_MSG023 + `<br>MajorCode: ${result.data.MajorCode}<br>MinorCode: ${result.data.MinorCode}<br>${result.data.Data}`);
+						}
+					})
+					.finally(function () {
+						self.$app.preloader.hide();
+					})
+					.catch(function (err) {
+						console.log(err);
+						if (err && err.status === 404) {
+							self.$app.dialog.alert(LANGUAGE.PROMPT_MSG002);
+						} else {
+							self.$app.dialog.alert(LANGUAGE.PROMPT_MSG003);
+						}
+					});
+			},
+			deleteItem: function (code, name) {
+				let self = this;
+				if (code) {
+					let text = `${LANGUAGE.PROMPT_MSG115} <b>${name}</b>. ${LANGUAGE.PROMPT_MSG050}`;
+					self.$app.dialog.confirm(text,
+						function () {
+
+							let data = {
+								MinorToken: self.$app.data.MinorToken,
+								MajorToken: self.$app.data.MajorToken,
+								Code: code,
+							};
+
+							self.$app.preloader.show();
+							self.$app.request.promise.get(API_URL.AUTOMATED_REPORT_DELETE, data, 'json')
+								.then(function (result) {
+									if (result.data.MajorCode === '000') {
+										mainView.router.refreshPage();
+									} else if (result.data.MajorCode === '100' && result.data.MinorCode === '1003') {
+										self.$app.methods.customDialog({ title: LANGUAGE.PROMPT_MSG039, text: LANGUAGE.PROMPT_MSG040 });
+									} else {
+										self.$app.dialog.alert(LANGUAGE.PROMPT_MSG023 + `<br>MajorCode: ${result.data.MajorCode}<br>MinorCode: ${result.data.MinorCode}<br>${result.data.Data}`);
+									}
+								})
+								.finally(function () {
+									self.$app.preloader.hide();
+								})
+								.catch(function (err) {
+									console.log(err);
+									if (err && err.status === 404) {
+										self.$app.dialog.alert(LANGUAGE.PROMPT_MSG002);
+									} else {
+										self.$app.dialog.alert(LANGUAGE.PROMPT_MSG003);
+									}
+								});
+						},
+						function () {
+							// cancel
+						}
+					);
+
+				}
+			},
+		},
+
+		on: {
+			pageInit: function (e, page) {
+				let self = this;
+
+				//self.$app.methods.getGeofenceList(self.initList);
+				self.$app.methods.getServiceIntervalList(self.initList);
+
+				page.$el.find('.serviceIntervalList').on('click', '.itemIntervalMenu', function () {
+					let parentLi = $$(this).closest('li');
+					let itemCode = parentLi.data('code');
+					//let itemName = parentLi.data('name');
+
+					self.$app.actions.create({
+						buttons: [
+							{
+								//text: LANGUAGE.COM_MSG074,
+								text: `<div class="action_button_wrapper">
+										<div class="action_button_block action_button_media text-color-lightgray">
+											<i class="f7-icons icon-live-mobile size-20"></i>
+										</div>
+										<div class="action_button_block action_button_text">
+											Contact deadler
+										</div>
+									</div>`,
+								onClick: function () {
+									self.callTo(self.SupportPhone)
+								}
+							},
+							{
+								//text: LANGUAGE.PROMPT_MSG025,
+								text: `<div class="action_button_wrapper">
+										<div class="action_button_block action_button_media text-color-lightgray">
+											<i class="f7-icons icon-tools size-20"></i>
+										</div>
+										<div class="action_button_block action_button_text">
+											Vehicle Service
+										</div>
+									</div>`,
+								onClick: function () {
+									mainView.router.navigate({
+										name: 'service-interval',
+										query: {
+											imei: self.IMEI,
+											code: itemCode,
+										},
+									});
+
+								}
+							},
+
+
+							{
+								//text: LANGUAGE.COM_MSG001,
+								text: `<div class="action_button_wrapper">
+										<div class="action_button_block action_button_media text-color-red">
+											<i class="f7-icons icon-close size-16"></i>
+										</div>
+										<div class="action_button_block action_button_text">
+											${ LANGUAGE.COM_MSG001}
+										</div>
+									</div>`,
+								color: 'red',
+							},
+						]
+					}).open();
+				})
+			},
+			pageBeforeRemove: function () {
+				if (this.Searchbar) {
+					this.Searchbar.destroy();
+				}
+				if (this.VirtualList) {
+					this.VirtualList.destroy();
+				}
+			}
+
+		}
+	};
+</script>

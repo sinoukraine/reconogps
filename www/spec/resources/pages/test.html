@@ -1,0 +1,95 @@
+<table cellpadding="0" cellspacing="0" border="0" background="https://templates.quiktrakglobal.com/shared/bg.png" bgcolor="cccccc" align="center" valign="top" style="width: 100%; max-width:980px; background:url('https://templates.quiktrakglobal.com/shared/bg.png') left top; padding: 20px;     background-size: cover;">
+    <!--<tr>
+       <td>
+          <a href="https://quiktrak.com.au/" target="_blank"><img src="https://templates.quiktrakglobal.com/shared/logo-qt.png" alt="PhoneTrack" style="display: block; margin:10px auto 0; width: 100%; max-width: 248px;"></a>
+       </td>            
+  </tr>-->
+  
+  <tr>
+      <td class="background: #fff;">
+          <div class="" style="padding: 20px; margin-top: 30px; background: #13120d;">
+              <p style="margin:0;padding:0; font-size:18px;line-height: 1.3; font-weight: normal; color: #fff; text-align: center;">
+                  <font face="Roboto, Arial, Open Sans" style="">
+                      Service Date {{DATETIME}}
+                  </font>
+              </p>
+          </div>
+          <div style="margin-top: 30px; ">
+              <p style="margin:0;padding:0; font-size:18px;line-height: 1.3; font-weight: normal; color: #e2062b; text-align: center;">
+                  <font face="Roboto, Arial, Open Sans" style="">
+                      Service Info
+                  </font>
+              </p>
+          </div>
+          
+          <table cellpadding="0" cellspacing="0" border="0" align="left" valign="top" style="margin-top: 15px; width: 100%; background: #fff;">                       
+              
+            {{if IMEI}}
+              <tr>    
+                  <td style="background-color: #13120d; color: #fff; padding: 15px; font-size:14px; line-height: 1; font-weight: bold; font-family: Roboto, Arial, Open Sans;">
+                      IMEI
+                  </td>
+                  <td style="background-color: transparent; color: #000; padding: 15px; font-size:14px; line-height: 1; font-weight: normal; font-family: Roboto, Arial, Open Sans; border-bottom: 1px solid #dadada; border-right: 1px solid #dadada">
+                      {{IMEI}}
+                  </td>          
+              </tr>
+              {{/if}}
+              {{if DEALERSHIP}}
+              <tr>    
+                  <td style="background-color: #13120d; color: #fff; padding: 15px; font-size:14px; line-height: 1; font-weight: bold; font-family: Roboto, Arial, Open Sans;">
+                      Dealership where serviced
+                  </td>
+                  <td style="background-color: transparent; color: #000; padding: 15px; font-size:14px; line-height: 1; font-weight: normal; font-family: Roboto, Arial, Open Sans; border-bottom: 1px solid #dadada; border-right: 1px solid #dadada">
+                      {{DEALERSHIP}}
+                  </td>          
+              </tr>  
+              {{/if}}
+              {{if PRICE}}
+              <tr>    
+                  <td style="background-color: #13120d; color: #fff; padding: 15px; font-size:14px; line-height: 1; font-weight: bold; font-family: Roboto, Arial, Open Sans;">
+                      Price
+                  </td>
+                  <td style="background-color: transparent; color: #000; padding: 15px; font-size:14px; line-height: 1; font-weight: normal; font-family: Roboto, Arial, Open Sans; border-bottom: 1px solid #dadada; border-right: 1px solid #dadada">
+                      {{PRICE}}
+                  </td>          
+              </tr> 
+              {{/if}}
+              {{if NOTES}}
+              <tr>    
+                  <td style="background-color: #13120d; color: #fff; padding: 15px; font-size:14px; line-height: 1; font-weight: bold; font-family: Roboto, Arial, Open Sans;">
+                      Notes
+                  </td>
+                  <td style="background-color: transparent; color: #000; padding: 15px; font-size:14px; line-height: 1; font-weight: normal; font-family: Roboto, Arial, Open Sans; border-bottom: 1px solid #dadada; border-right: 1px solid #dadada">
+                      {{NOTES}}
+                  </td>          
+              </tr> 
+              {{/if}}
+             
+          </table> 
+          </td>            
+  </tr>
+  
+  <tr>
+      <td>
+          <div style="margin-top: 30px; ">
+              <p style="margin:0;padding:0; font-size:18px;line-height: 1.3; font-weight: normal; color: #e2062b; text-align: center;">
+                  <font face="Roboto, Arial, Open Sans" style="">
+                      Photo(s)
+                  </font>
+              </p>
+          </div>
+          <table cellpadding="0" cellspacing="0" border="0" align="left" valign="top" style="margin-top: 15px; width: 100%; "> 
+              {{#each PHOTOS}}
+                <tr>    
+                  <td style="color: #2f2f2f;font-size: 12px;padding: 10px;font-weight: 500;">
+                      <a href="https://upload.quiktrak.co/Attachment/images/{{PHOTOURL}}" target="blank" download="" style=" "><div style="width: 120px; height: 120px; position: relative; display: inline-block; margin: 10px;"><img src="https://upload.quiktrak.co/Attachment/images/*|PHOTOURL|*" alt="image" style="border-radius: 5px; position: absolute; right: 0; left: 0; top: 0; bottom: 0; margin: auto; max-height: 100%; max-width: 100%; box-shadow: 0px 3px 3px -2px rgba(0,0,0,0.2),0px 3px 4px 0px rgba(0,0,0,0.14),0px 1px 8px 0px rgba(0,0,0,0.12);"/>
+                          </div></a>
+                  </td>                  
+              </tr>
+              {{each}}
+          </table>
+      </td>
+  </tr>
+  
+  
+</table>

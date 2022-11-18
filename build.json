@@ -1,0 +1,19 @@
+{
+    "android": {
+        "debug": {
+            "keystore": "D:/AndroidStudioProjects/jks/recano.jks",
+            "storePassword": "recano",
+            "alias": "recano",
+            "password" : "recano",
+            "keystoreType": "jks"
+        },
+        "release": {
+            "keystore": "D:/AndroidStudioProjects/jks/recano.jks",
+            "storePassword": "recano",
+            "alias": "recano",
+            "password" : "recano",
+            "keystoreType": "jks",
+            "packageType": "bundle"
+        }
+    }
+}

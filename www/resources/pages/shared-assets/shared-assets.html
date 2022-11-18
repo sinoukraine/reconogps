@@ -1,0 +1,631 @@
+<!--suppress JSAnnotator -->
+<template>
+<!-- Page, data-name contains page name which can be used in callbacks -->
+    <div class="page " data-name="share-assets"> <!-- page-with-subnavbar -->
+    <!-- Top Navbar -->
+        <div class="navbar">
+            <div class="navbar-bg"></div>
+            <div class="navbar-inner">
+                <div class="left">
+                    <a href="/panel-left/" class="link icon-only " >
+                        <i class="if-not-ios text-color-white f7-icons icon-header-menu"></i>
+                        <i class="if-ios text-color-white icon material-icons">menu</i>
+                    </a>
+                </div>
+                <div class="title sliding">{{@global.LANGUAGE.SHARE_ASSETS_MSG000}}</div>
+                <div class="right">
+                    {{#js_if 'this.CurrentTab === "my-assets"'}}
+                    <a href="/shared-assets/create/" class="link icon-only ">
+                        <i class="f7-icons text-color-white icon-header-added"></i>
+                    </a>
+                    {{else}}
+                    <a href="#" @click="openSubscribeCodeDialog" class="link icon-only" >
+                        <i class="f7-icons text-color-white icon-header-added"></i>
+                    </a>
+                    {{/js_if}}
+                    <!--<label for="{{CurrentFormButtonSubmit}}" class="link icon-only">
+                        <i class="f7-icons icon-header-apply"></i>
+                    </label>-->
+                </div>
+            </div>
+        </div>
+
+        <div class="toolbar tabbar toolbar-top">
+            <div class="toolbar-inner">
+                <a href="#my-assets" class="tab-link tab-link-active">
+                    {{@global.LANGUAGE.SHARE_ASSETS_MSG001}}
+                </a>
+                <a href="#subscribed" class="tab-link">
+                    {{@global.LANGUAGE.SHARE_ASSETS_MSG002}}
+                </a>
+            </div>
+        </div>
+        <!--<div class="searchbar-backdrop"></div>-->
+        <div class="tabs-animated-wrap">
+            <div class="tabs">
+                <div class="page-content tab tab-active" id="my-assets">
+
+                    <form class="searchbar searchbar-shared-assets-my overflow-hidden" >
+                        <div class="searchbar-inner">
+                            <div class="searchbar-input-wrap">
+                                <input type="search" placeholder="{{@global.LANGUAGE.COM_MSG002}}" title="{{@global.LANGUAGE.COM_MSG002}}">
+                                <i class="searchbar-icon"></i>
+                                <span class="input-clear-button"></span>
+                            </div>
+                            <span class="searchbar-disable-button text-color-white">{{@global.LANGUAGE.COM_MSG001}}</span>
+                        </div>
+                    </form>
+
+                    <div key="hide-on-search-block-my-assets" class="block searchbar-hide-on-search text-color-white text-align-center {{#unless isMyAssetsLoaded}}display-none{{/unless}}">{{@global.LANGUAGE.SHARE_ASSETS_MSG003}}</div>
+
+                    <div class="block searchbar-not-found text-color-white">
+                        <div class="block-inner">{{@global.LANGUAGE.PROMPT_MSG000}}</div>
+                    </div>
+
+                    {{#unless isMyAssetsLoaded}}
+                    <div key="skeleton-virtual-list-my-assets" class="list media-list no-hairlines no-chevron no-margin-top">
+                        <ul>
+                            {{#each '123'}}
+                            <li>
+                                <a href="#" class="item-link item-content asset skeleton-text skeleton-effect-blink" >
+                                    <div class="item-inner">
+                                        <div class="item-title-row align-items-center">
+                                            <div class="item-title">
+                                                Asset Name
+                                            </div>
+                                            <div class="item-after">
+                                                ic
+                                            </div>
+                                        </div>
+                                        <div class="item-text">
+                                            geofence address goes here, it can be very long, two lines.. some time it take 3 or even 4 lines
+                                        </div>
+                                    </div>
+                                </a>
+                            </li>
+                            {{/each}}
+                        </ul>
+                    </div>
+                    {{/unless}}
+
+                    <div class="list media-list virtual-list no-chevron no-margin-top no-hairline-bottom searchbar-found myAssetsList" >
+                        <!-- keep it empty -->
+                    </div>
+                </div>
+
+                <div class="page-content tab" id="subscribed">
+                    <form class="searchbar searchbar-shared-assets-subscribed overflow-hidden" >
+                        <div class="searchbar-inner">
+                            <div class="searchbar-input-wrap">
+                                <input type="search" placeholder="{{@global.LANGUAGE.COM_MSG002}}" title="{{@global.LANGUAGE.COM_MSG002}}">
+                                <i class="searchbar-icon"></i>
+                                <span class="input-clear-button"></span>
+                            </div>
+                            <span class="searchbar-disable-button text-color-white">{{@global.LANGUAGE.COM_MSG001}}</span>
+                        </div>
+                    </form>
+
+                    <div class="block searchbar-hide-on-search text-color-white text-align-center {{#unless isSubscribedLoaded}}display-none{{/unless}}">{{@global.LANGUAGE.SHARE_ASSETS_MSG004}}</div>
+
+                    <div class="block searchbar-not-found text-color-white">
+                        <div class="block-inner">{{@global.LANGUAGE.PROMPT_MSG000}}</div>
+                    </div>
+                    {{#unless isSubscribedLoaded}}
+                    <div key="skeleton-virtual-list-subscribed-assets" class="list media-list no-hairlines no-chevron no-margin-top">
+                        <ul>
+                            {{#each '123'}}
+                            <li>
+                                <a href="#" class="item-link item-content asset skeleton-text skeleton-effect-blink" >
+                                    <div class="item-inner">
+                                        <div class="item-title-row align-items-center">
+                                            <div class="item-title">
+                                                Asset Name
+                                            </div>
+                                            <div class="item-after">
+                                                ic
+                                            </div>
+                                        </div>
+                                        <div class="item-text">
+                                            geofence address goes here, it can be very long, two lines.. some time it take 3 or even 4 lines
+                                        </div>
+                                    </div>
+                                </a>
+                            </li>
+                            {{/each}}
+                        </ul>
+                    </div>
+                    {{/unless}}
+
+                    <div class="list media-list virtual-list no-chevron no-margin-top no-hairline-bottom searchbar-found subscribedAssetsList" >
+                        <!-- keep it empty -->
+                    </div>
+                </div>
+
+
+            </div>
+        </div>
+
+    </div>
+
+
+
+</template>
+
+
+<script>
+  // script must return component object
+    return {
+        data: function () {
+            var self = this;
+
+            var ret = {
+                CurrentTab: 'my-assets',
+                isMyAssetsLoaded: false,
+                isSubscribedLoaded: false,
+
+                VirtualListMyAssets: null,
+                VirtualListSubscribed: null,
+                SearchbarMyAssets: null,
+                SearchbarSubscribed: null,
+            };
+
+           /* ret = self.$app.methods.getFromStorage('userInfo');
+            ret.TimeZoneList = Protocol.Helper.getTimezoneList(ret.TimeZoneID || ret.TimeZone);
+            ret.CurrentFormButtonSubmit = 'submit-form-user';*/
+
+            return ret;
+        },
+
+        methods: {
+            initListMyAssetsList: function (assetList) {
+                let self = this;
+
+                let listEl = self.$el.find('.myAssetsList');
+
+                self.VirtualListMyAssets = self.$app.virtualList.create({
+                    el: listEl,
+                    items: assetList || [],
+                    //cache: false,
+                    searchAll: function (query, items) {
+                        let found = [];
+                        for (let i = 0; i < items.length; i++) {
+                            if (items[i].Name.toLowerCase().indexOf(query.toLowerCase()) >= 0 ||
+                              items[i].IMEI.toLowerCase().indexOf(query.toLowerCase()) >= 0 ||
+                              query.trim() === ''
+                            ){
+                                found.push(i);
+                            }
+                        }
+                        return found; //return array with mathced indexes
+                    },
+                    height: function (item) {
+                        return self.$app.theme === 'ios' ? 75.75 : 81.3
+                    },
+                    renderItem: function (item, index) {
+                        let ret = `
+                            <li data-index="${index}">`;
+
+                        ret += `  <a href="#" class="link color-custom ripple-color-red item-menu-button bigger-touch-area myAssetsMenu">
+                                        <i class="f7-icons icon-header-menu2 size-18"></i>
+                                    </a>`;
+
+                        ret += `  <a href="#" class="item-link item-content">
+                                    <div class="item-inner">
+                                        <div class="item-title-row">
+                                            <div class="item-title text-transform-uppercase">${POSINFOASSETLIST[item.IMEI]?.Name || item.IMEI}</div>
+                                            <div class="item-after"><i class="f7-icons icon-header-menu2 fake-icon"></i></div>
+                                        </div>
+                                        <div class="item-text">
+                                          <div class="row no-gap">
+                                            <div class="col-50 margin-top-half">
+                                              <i class="f7-icons size-16 icon-other-remove text-color-custom vertical-align-middle"></i>
+                                              <span class="size-12 vertical-align-middle margin-left-half text-color-lightgray">${ item.EndTimeLocal }</span>
+                                            </div>
+                                            <div class="col-50 margin-top-half">
+                                              <i class="f7-icons size-16 icon-number text-color-custom vertical-align-middle"></i>
+                                              <span class="size-12 vertical-align-middle margin-left-half text-color-lightgray">${ item.Code }</span>
+                                            </div>
+
+                                          </div>
+                                        </div>
+                                    </div>
+                                </a>
+                            </li>`;
+                        return ret;
+                    },
+                    emptyTemplate: `<li class="item-content">${LANGUAGE.COM_MSG040}</li>`
+                });
+
+                self.$setState({
+                    isMyAssetsLoaded: true
+                });
+                //self.initSearchMyAssets();
+            },
+            initSearchMyAssets: function () {
+                let self = this;
+
+                self.SearchbarMyAssets = self.$app.searchbar.create({
+                    el: self.$el.find('.searchbar-shared-assets-my'),
+                    searchContainer: self.$el.find('.myAssetsList'),
+                    searchIn: '.item-title',
+                    notFoudEl: self.$el.find('.searchbar-not-found'),
+                    backdrop: false
+                });
+
+            },
+            updateMySharedAssetList(){
+                var self = this;
+
+                self.$app.methods.getMySharedAssetList()
+                  .then(list => {
+                      self.VirtualListMyAssets.replaceAllItems(list)
+                  })
+            },
+            stopSharingMyAsset(imei){
+                var self = this;
+                self.$app.dialog.confirm(LANGUAGE.SHARE_ASSETS_MSG019, LANGUAGE.COM_MSG064, function (){
+                    self.$app.preloader.show();
+                    self.$app.request.promise.post(API_URL.STOP_SHARE_ASSET, {
+                        MajorToken: self.$app.data.MajorToken,
+                        imei: imei
+                    }, 'json')
+                        .then(function (result) {
+                          if(result.data.MajorCode === '000') {
+                              self.updateMySharedAssetList()
+                              self.$app.methods.customDialog({text: LANGUAGE.SHARE_ASSETS_MSG022})
+                          }else{
+                              self.$app.dialog.alert(LANGUAGE.PROMPT_MSG023 + `<br>MajorCode: ${result.data.MajorCode}<br>MinorCode: ${result.data.MinorCode}`);
+                          }
+                        })
+                        .finally(function () {
+                          self.$app.preloader.hide();
+                        })
+                        .catch(function (err) {
+                          console.log(err);
+                          if (err && err.status === 404){
+                              self.$app.dialog.alert(LANGUAGE.PROMPT_MSG002);
+                          }else{
+                              self.$app.dialog.alert(LANGUAGE.PROMPT_MSG003);
+                          }
+                        });
+                })
+
+            },
+            extendExpiryDate: function (code){
+                var self = this;
+                self.$app.dialog.prompt(LANGUAGE.SHARE_ASSETS_MSG024, LANGUAGE.SHARE_ASSETS_MSG023, function(value){
+                    //console.log(value)
+                    value = parseInt(value.trim())
+                    if(!value){
+                        self.$app.methods.customDialog({title: LANGUAGE.PROMPT_MSG100, text: LANGUAGE.SHARE_ASSETS_MSG025});
+                        return
+                    }
+                    self.$app.preloader.show();
+                    self.$app.request.promise.post(API_URL.EDIT_ASSET_SHARE_CODE, {
+                        MajorToken: self.$app.data.MajorToken,
+                        //MinorToken: self.$app.data.MinorToken,
+                        code: code,
+                        days: value,
+                    }, 'json')
+                      .then(function (result) {
+                          if(result.data.MajorCode === '000') {
+                              self.$app.methods.customDialog({text: LANGUAGE.SHARE_ASSETS_MSG026})
+                              self.updateMySharedAssetList()
+
+                          }else{
+                              self.$app.dialog.alert(LANGUAGE.PROMPT_MSG023 + `<br>MajorCode: ${result.data.MajorCode}<br>MinorCode: ${result.data.MinorCode}`);
+                          }
+                      })
+                      .finally(function () {
+                          self.$app.preloader.hide();
+                      })
+                      .catch(function (err) {
+                          console.log(err);
+                          if (err && err.status === 404){
+                              self.$app.dialog.alert(LANGUAGE.PROMPT_MSG002);
+                          }else{
+                              self.$app.dialog.alert(LANGUAGE.PROMPT_MSG003);
+                          }
+                      });
+                }, function (){
+                    console.log('canceled')
+                }, 30)
+            },
+
+            initListSubscribedAssetsList: function (assetList) {
+                let self = this;
+                console.log(assetList)
+                let listEl = self.$el.find('.subscribedAssetsList');
+
+                self.VirtualListSubscribed = self.$app.virtualList.create({
+                    el: listEl,
+                    items: assetList || [],
+                    //cache: false,
+                    searchAll: function (query, items) {
+                        let found = [];
+                        for (let i = 0; i < items.length; i++) {
+                            if (items[i].Name.toLowerCase().indexOf(query.toLowerCase()) >= 0 ||
+                              items[i].IMEI.toLowerCase().indexOf(query.toLowerCase()) >= 0 ||
+                              query.trim() === ''
+                            ){
+                                found.push(i);
+                            }
+                        }
+                        return found; //return array with mathced indexes
+                    },
+                    height: function (item) {
+                        return self.$app.theme === 'ios' ? 45 : 53
+                    },
+                    renderItem: function (item, index) {
+                        let ret = `
+                            <li data-index="${index}">`;
+
+                        ret += `  <a href="#" class="link color-custom ripple-color-red item-menu-button bigger-touch-area subscribedAssetsMenu">
+                                        <i class="f7-icons icon-header-menu2 size-18"></i>
+                                    </a>`;
+
+                        ret += `  <a href="#" class="item-link item-content">
+                                    <div class="item-inner">
+                                        <div class="item-title-row">
+                                            <div class="item-title text-transform-uppercase">${item.Name || item.IMEI}</div>
+                                            <div class="item-after"><i class="f7-icons icon-header-menu2 fake-icon"></i></div>
+                                        </div>
+
+                                    </div>
+                                </a>
+                            </li>`;
+                        return ret;
+                    },
+                    emptyTemplate: `<li class="item-content">${LANGUAGE.COM_MSG040}</li>`
+                });
+
+                self.$setState({
+                    isSubscribedLoaded: true
+                });
+                //self.initSearchSubscribed();
+            },
+            initSearchSubscribed: function () {
+                let self = this;
+                self.SearchbarSubscribed = self.$app.searchbar.create({
+                    el: self.$el.find('.searchbar-shared-assets-subscribed'),
+                    searchContainer: self.$el.find('.subscribedAssetsList'),
+                    searchIn: '.item-title',
+                    notFoudEl: self.$el.find('.searchbar-not-found'),
+                    backdrop: false
+                });
+
+            },
+            updateSubscribedAssetList(){
+                var self = this;
+
+                self.$app.methods.getSubscribedAssetList()
+                  .then(list => {
+                      self.VirtualListSubscribed.replaceAllItems(list)
+                  })
+            },
+            openSubscribeCodeDialog(){
+                var self = this;
+                self.$app.dialog.prompt(LANGUAGE.SHARE_ASSETS_MSG013, LANGUAGE.SHARE_ASSETS_MSG014, function(value){
+                    //console.log(value)
+                    value = value.trim()
+                    if(!value){
+                        self.$app.methods.customDialog({title: LANGUAGE.PROMPT_MSG100, text: LANGUAGE.SHARE_ASSETS_MSG015});
+                        return
+                    }
+                    self.$app.preloader.show();
+                    self.$app.request.promise.post(API_URL.SUBSCRIBE_TO_ASSET_SHARE_CODE, {
+                        MajorToken: self.$app.data.MajorToken,
+                        //MinorToken: self.$app.data.MinorToken,
+                        code: value
+                    }, 'json')
+                          .then(function (result) {
+                              if(result.data.MajorCode === '000') {
+                                  self.updateSubscribedAssetList()
+                                  self.$app.methods.customDialog({text: LANGUAGE.SHARE_ASSETS_MSG017})
+                                  self.$app.methods.login(true)
+                              }else{
+                                  self.$app.dialog.alert(LANGUAGE.PROMPT_MSG023 + `<br>MajorCode: ${result.data.MajorCode}<br>MinorCode: ${result.data.MinorCode}`);
+                              }
+                          })
+                          .finally(function () {
+                              self.$app.preloader.hide();
+                          })
+                          .catch(function (err) {
+                              console.log(err);
+                              if (err && err.status === 404){
+                                  self.$app.dialog.alert(LANGUAGE.PROMPT_MSG002);
+                              }else{
+                                  self.$app.dialog.alert(LANGUAGE.PROMPT_MSG003);
+                              }
+                          });
+                }, function (){
+                    console.log('canceled')
+                }, '')
+            },
+            unsubscribeFromAsset(imei){
+                var self = this;
+                self.$app.dialog.confirm(LANGUAGE.SHARE_ASSETS_MSG020, LANGUAGE.SHARE_ASSETS_MSG018, function (){
+                    self.$app.preloader.show();
+                    self.$app.request.promise.post(API_URL.UNSUBSCRIBE_FROM_ASSET_SHARE_CODE, {
+                        MajorToken: self.$app.data.MajorToken,
+                        imei: imei
+                    }, 'json')
+                      .then(function (result) {
+                          if(result.data.MajorCode === '000') {
+                              self.updateSubscribedAssetList()
+                              self.$app.methods.customDialog({text: LANGUAGE.SHARE_ASSETS_MSG021})
+                              self.$app.methods.login(true)
+                          }else{
+                              self.$app.dialog.alert(LANGUAGE.PROMPT_MSG023 + `<br>MajorCode: ${result.data.MajorCode}<br>MinorCode: ${result.data.MinorCode}`);
+                          }
+                      })
+                      .finally(function () {
+                          self.$app.preloader.hide();
+                      })
+                      .catch(function (err) {
+                          console.log(err);
+                          if (err && err.status === 404){
+                              self.$app.dialog.alert(LANGUAGE.PROMPT_MSG002);
+                          }else{
+                              self.$app.dialog.alert(LANGUAGE.PROMPT_MSG003);
+                          }
+                      });
+                })
+            },
+        },
+
+        on: {
+            pageInit: function (e, page) {
+                var self = this;
+
+               /* var passwordForm = page.$pageEl.find('[name = "user-password-form"]');*/
+                var tabsEl = page.$pageEl.find('.tab');
+                var myAssetsListEl = page.$el.find('.myAssetsList');
+                var subscribedAssetsListEl = page.$el.find('.subscribedAssetsList');
+
+                tabsEl.on('tab:show', function(){
+                    self.SearchbarMyAssets.clear();
+                    self.SearchbarSubscribed.clear();
+
+                    self.$setState({
+                        CurrentTab: this.id
+                    }, ()=> {
+                        self.SearchbarMyAssets.disable();
+                        self.SearchbarSubscribed.disable();
+                    });
+                });
+
+                self.initSearchMyAssets()
+                self.initSearchSubscribed()
+                self.$app.methods.getMySharedAssetList()
+                  .then(list => self.initListMyAssetsList(list))
+
+                self.$app.methods.getSubscribedAssetList()
+                  .then(list => self.initListSubscribedAssetsList(list))
+
+                myAssetsListEl.on('click', '.item-content', function () {
+                    let index = $$(this).closest('li').data('index')
+
+                    let isCopied = self.$app.methods.copyToClipboard(self.VirtualListMyAssets.items[index].Code)
+                    if(isCopied){
+                        self.$app.methods.showToast(LANGUAGE.SHARE_ASSETS_MSG012);
+                    }
+                })
+                myAssetsListEl.on('click', '.myAssetsMenu', function () {
+                    let index = $$(this).closest('li').data('index')
+                    if(typeof(index) === 'undefined' ) return
+
+                    self.$app.actions.create({
+                        buttons: [
+                            {
+                                text: `<div class="action_button_wrapper">
+                                    <div class="action_button_block action_button_media text-color-custom">
+                                        <i class="f7-icons icon-other-view-password size-20"></i>
+                                    </div>
+                                    <div class="action_button_block action_button_text text-color-white">
+                                        ${ LANGUAGE.SHARE_ASSETS_MSG011 }
+                                    </div>
+                                </div>`,
+                                onClick: function() {
+                                    mainView.router.navigate({
+                                        name: 'shared-assets-view',
+                                    }, {
+                                        context: self.VirtualListMyAssets.items[index]
+                                    })
+                                }
+                            },
+                            {
+                                text: `<a href="#" class="action_button_wrapper">
+                                    <div class="action_button_block action_button_media text-color-custom">
+                                        <i class="f7-icons icon-copy size-20"></i>
+                                    </div>
+                                    <div class="action_button_block action_button_text text-color-white">
+                                        ${ LANGUAGE.SHARE_ASSETS_MSG010 }
+                                    </div>
+                                </a>`,
+                                onClick: function() {
+                                    let isCopied = self.$app.methods.copyToClipboard(self.VirtualListMyAssets.items[index].Code)
+                                    if(isCopied){
+                                        self.$app.methods.showToast(LANGUAGE.SHARE_ASSETS_MSG012);
+                                    }
+                                }
+                            },
+                            {
+                                text: `<a href="#" class="action_button_wrapper">
+                                    <div class="action_button_block action_button_media text-color-custom">
+                                        <i class="f7-icons icon-header-refresh size-20"></i>
+                                    </div>
+                                    <div class="action_button_block action_button_text text-color-white">
+                                        ${ LANGUAGE.SHARE_ASSETS_MSG023 }
+                                    </div>
+                                </a>`,
+                                onClick: function() {
+                                    self.extendExpiryDate(self.VirtualListMyAssets.items[index].Code)
+                                }
+                            },
+                            {
+                                text: `<div class="action_button_wrapper">
+                                    <div class="action_button_block action_button_media text-color-red">
+                                        <i class="f7-icons icon-geofence-remove size-20"></i>
+                                    </div>
+                                    <div class="action_button_block action_button_text">
+                                        ${ LANGUAGE.COM_MSG064 }
+                                    </div>
+                                </div>`,
+                                color: 'red',
+                                onClick: function() {
+                                    self.stopSharingMyAsset(self.VirtualListMyAssets.items[index].IMEI)
+                                    //self.deleteGeofence(geofenceCode, geofenceName);
+                                }
+                            },
+                        ]
+                    }).open();
+                })
+
+
+                subscribedAssetsListEl.on('click', '.item-content, .subscribedAssetsMenu', function () {
+                    let index = $$(this).closest('li').data('index')
+
+                    if(typeof(index) === 'undefined' ) return
+                    self.$app.actions.create({
+                        buttons: [
+                            {
+                                text: `<div class="action_button_wrapper">
+                                    <div class="action_button_block action_button_media text-color-red">
+                                        <i class="f7-icons icon-geofence-remove size-20"></i>
+                                    </div>
+                                    <div class="action_button_block action_button_text">
+                                        ${ LANGUAGE.SHARE_ASSETS_MSG018 }
+                                    </div>
+                                </div>`,
+                                color: 'red',
+                                onClick: function() {
+                                    self.unsubscribeFromAsset(self.VirtualListSubscribed.items[index].IMEI)
+                                    //self.deleteGeofence(geofenceCode, geofenceName);
+                                }
+                            },
+                        ]
+                    }).open();
+                })
+            },
+            pageBeforeRemove: function () {
+                /*if (this.Searchbar){
+                    this.Searchbar.destroy();
+                }*/
+                if (this.VirtualListMyAssets){
+                    this.VirtualListMyAssets.destroy();
+                }
+                if (this.VirtualListSubscribed){
+                    this.VirtualListSubscribed.destroy();
+                }
+                if (this.SearchbarMyAssets){
+                    this.SearchbarMyAssets.destroy();
+                }
+                if (this.SearchbarSubscribed){
+                    this.SearchbarSubscribed.destroy();
+                }
+            }
+
+        }
+    };
+</script>

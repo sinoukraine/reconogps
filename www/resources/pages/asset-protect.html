@@ -1,0 +1,1110 @@
+<!--suppress JSAnnotator -->
+<template>
+    <div class="page " data-name="asset-protect">
+        <!-- page-with-subnavbar -->
+        <!-- Top Navbar -->
+        <div class="navbar">
+            <div class="navbar-bg"></div>
+            <div class="navbar-inner">
+                <div class="left">
+                    <a href="#" class="link icon-only back">
+                        <i class="if-not-ios text-color-white f7-icons icon-header-arrow-back"></i>
+                        <i class="if-ios icon text-color-white icon-back"></i>
+                    </a>
+                </div>
+                <div class="title sliding">
+                    {{Name}}
+                </div>
+                <div class="right">
+                    {{#unless IsAssetShared}}
+                    <a href="/asset-edit/?imei={{IMEI}}" class="link icon-only ">
+                        <i class="f7-icons text-color-white icon-header-edit"></i>
+                    </a>
+                    {{/unless}}
+                </div>
+
+                {{#if isLoc8}}
+                <a @click="showMapControlls" href="#" class="link icon-only ">
+                    <i class="f7-icons text-color-white icon-header-menu2"></i>
+                </a>
+                {{/if}}
+                {{#if isLife}}
+                <a @click="showMapControlls" href="#" class="link icon-only ">
+                    <i class="f7-icon text-color-white icon-header-menu2"></i>
+                </a>
+                {{/if}}
+            </div>
+        </div>
+        <!--{{#if ShowPayment}}
+        <div class="toolbar toolbar-bottom ">
+            <div class="toolbar-inner ">
+                <a href="/asset-upgrade/?imei={{IMEI}}" class="link button width-100 color-white "><i class="f7-icons icon-upgrade-to-live margin-right"></i>{{@global.LANGUAGE.ASSET_PROTECT_MSG01}}</a>
+            </div>
+        </div>
+        {{/if}}-->
+
+        {{#unless IsAssetShared}}
+
+        {{#if isLoc8}}
+        <div class="toolbar toolbar-bottom toolbar-buttons-custom no-border">
+            <div class="toolbar-inner row no-gap no-padding">
+                {{#if ShowPayment}}
+                <a href="/asset-upgrade/?imei={{IMEI}}"
+                    class="link button col no-border-radius button-fill color-custom"><i
+                        class="f7-icons icon-upgrade-to-live margin-right"></i>{{@global.LANGUAGE.ASSET_PROTECT_MSG01}}</a>
+
+                {{/if}}
+                <a href="/report-theft/?imei={{IMEI}}"
+                    class="link button col no-border-radius  button-fill color-darkgray "><i
+                        class="f7-icons icon-live-report-thief margin-right"></i>
+                    {{@global.LANGUAGE.ASSET_STATUS_LIVE_MSG07}}</a>
+
+            </div>
+        </div>
+        {{else}}
+        {{#if isLife}}
+        <div class="toolbar toolbar-bottom toolbar-bottom-islife toolbar-buttons-custom no-border">
+            <div class="toolbar-inner row no-gap no-padding">
+
+
+
+                <a href="/report-theft/?imei={{IMEI}}"
+                    class="link button col no-border-radius  button-fill color-darkgray "><i
+                        class="f7-icons icon-live-report-thief margin-right"></i>
+                    {{@global.LANGUAGE.ASSET_STATUS_LIVE_MSG07}}</a>
+                 {{#if IsLifeProduct}}  
+                 {{#if IsAssetLifeIsLive}}
+                 <a @click="setMode" class="link button col no-border-radius button-fill color-custom"><i
+                         class="f7-icons icon-upload-file margin-right"></i>
+                     {{@global.LANGUAGE.ASSET_PROTECT_MSG06}}
+                 </a>
+                 {{else}}
+                 <a @click="setMode" class="link button col no-border-radius button-fill color-custom"><i
+                         class="f7-icons icon-upgrade-to-live margin-right"></i>
+                     {{@global.LANGUAGE.ASSET_PROTECT_MSG05}}
+                 </a>
+             {{/if}} 
+                 {{/if}}
+              
+            </div>
+        </div>
+        {{else}}
+        <div class="toolbar toolbar-bottom no-border {{#if ShowPayment}}toolbar-size-3{{else}}toolbar-size-1{{/if}}">
+            <div class="toolbar-inner flex-direction-column  bg-color-gray no-padding ">
+                {{#if ShowPayment}}
+                <div class="width-100 ">
+                    <a href="/asset-upgrade/?imei={{IMEI}}"
+                        class="link button  button-fill color-custom margin-horizontal margin-top"><i
+                            class="f7-icons icon-upgrade-to-live margin-right"></i>{{@global.LANGUAGE.ASSET_PROTECT_MSG01}}</a>
+                </div>
+                {{/if}}
+                <div class="width-100 ">
+                    <a href="/report-theft/?imei={{IMEI}}"
+                        class="link button button-fill color-darkgray col-100 margin-horizontal margin-top margin-bottom"><i
+                            class="f7-icons icon-live-report-thief margin-right"></i>
+                        {{@global.LANGUAGE.ASSET_STATUS_LIVE_MSG07}}</a>
+                </div>
+            </div>
+        </div>
+        {{/if}}
+        {{/if}}
+        {{/unless}}
+
+        <div class="page-content">
+            {{#if ShowPayment}}
+            {{#if isNeedToRenew}}
+            <ul class="list no-hairlines no-chevron bg-color-red no-margin">
+                <li class="item-content">
+                    <div class="item-inner">
+                        <div class="text-color-white">{{renewalLabel}}</div>
+                        <div class="item-after min-width-122">
+                            <a href="#" @click="renewNow"
+                                class=" width-100 button button-fill bg-color-white text-color-orange external">{{@global.LANGUAGE.PROMPT_MSG136_}}</a>
+                        </div>
+                    </div>
+                </li>
+            </ul>
+            {{/if}}
+            {{/if}}
+            {{#if isLoc8}}
+            <div class="map-loc8 position-relative">
+                <div id="{{MapId}}" class="map"></div>
+
+                <div
+                    class="fab fab-left-bottom fab-custom with-borders {{#unless SVExist}}disabled{{/unless}}  no-margin ">
+                    <a @click="ShowStreetView" href="#" class="bg-color-darkgray elevation-hover-10" data-lat="{{Lat}}"
+                        data-lng="{{Lng}}">
+                        <i class="pano-preview-img"></i>
+                    </a>
+                </div>
+
+                <div class="fab fab-right-bottom-custom fab-custom ">
+                    <a href="#" @click="GetLiveUpdate"
+                        class="bg-color-darkgray elevation-hover-10 flex-direction-column" data-lat="{{Lat}}"
+                        data-lng="{{Lng}}">
+                        <i class="f7-icons icon-header-refresh"></i>
+                        <div class="fab-text">{{@global.LANGUAGE.COM_MSG057}}</div>
+                    </a>
+                </div>
+
+                <div class="fab fab-right-bottom fab-custom  no-margin ">
+                    <a href="#" class="bg-color-darkgray elevation-hover-10 flex-direction-column routeButton"
+                        data-lat="{{Lat}}" data-lng="{{Lng}}">
+                        <i class="f7-icons icon-other-route"></i>
+                        <div class="fab-text">{{@global.LANGUAGE.ASSET_TRACK_MSG20}}</div>
+                    </a>
+                </div>
+            </div>
+            {{else}}
+            {{#if isLife}}
+            <div class="map-llife position-relative">
+                <div id="{{MapId}}" class="map"></div>
+
+                <div
+                    class="fab fab-left-bottom fab-custom with-borders {{#unless SVExist}}disabled{{/unless}}  no-margin ">
+                    <a @click="ShowStreetView" href="#" class="bg-color-darkgray elevation-hover-10" data-lat="{{Lat}}"
+                        data-lng="{{Lng}}">
+                        <i class="pano-preview-img"></i>
+                    </a>
+                </div>
+
+                <div class="fab fab-right-bottom fab-custom  no-margin ">
+                    <a href="#" class="bg-color-darkgray elevation-hover-10 flex-direction-column routeButton"
+                        data-lat="{{Lat}}" data-lng="{{Lng}}">
+                        <i class="f7-icons icon-other-route"></i>
+                        <div class="fab-text">{{@global.LANGUAGE.ASSET_TRACK_MSG20}}</div>
+                    </a>
+                </div>
+            </div>
+            {{else}}
+            <div class="block asset-image-big-wrapper text-align-center">
+                {{#unless IsAssetShared}}
+                <a href="/asset-edit/?imei={{IMEI}}&openEditImage=true" class="link">
+                    {{AssetImg}}
+                </a>
+                {{else}}
+                {{AssetImg}}
+                {{/unless}}
+
+            </div>
+            {{/if}}
+            {{/if}}
+
+
+            <div class="list no-hairlines no-chevron mb-0 mt-10 hr-bottom">
+                <ul>
+                    {{#if isLoc8}}
+                    <li class="item-content">
+                        <div class="item-media text-color-custom">
+                            <i class="f7-icons icon-protect-position3"></i>
+                        </div>
+                        <div class="item-inner">
+                            <div class="item-title text-color-gray">{{@global.LANGUAGE.ASSET_PROTECT_MSG04}}</div>
+                            <div class="item-after min-width-122">
+                                {{lastUpdateTime}}
+                            </div>
+                        </div>
+                    </li>
+
+
+
+
+                    {{/if}}
+
+
+
+                    {{#unless isLife}}
+                    <li class="item-content">
+                        <div class="item-media text-color-custom">
+                            <i class="f7-icons icon-protect-status3"></i>
+                        </div>
+                        <div class="item-inner">
+                            <div class="item-title">{{@global.LANGUAGE.ASSET_STATUS_LIVE_MSG00}}</div>
+                            <div class="item-after min-width-122">
+                                <a href="/asset-status/?imei={{IMEI}}"
+                                    class=" width-100 button button-fill color-custom">{{@global.LANGUAGE.COM_MSG048}}</a>
+                            </div>
+                        </div>
+                    </li>
+
+
+                    {{#unless isLoc8}}
+                    <li class="item-content">
+                        <div class="item-media text-color-custom">
+                            <i class="f7-icons icon-protect-position3"></i>
+                        </div>
+                        <div class="item-inner">
+                            <div class="item-title">{{@global.LANGUAGE.ASSET_PROTECT_MSG00}}</div>
+                            <div class="item-after min-width-122">
+                                <a href="/asset-track/?imei={{IMEI}}"
+                                    class=" width-100 button button-fill color-custom">{{@global.LANGUAGE.COM_MSG048}}</a>
+                            </div>
+                        </div>
+                    </li>
+                    {{/unless}}
+                    {{/unless}}
+
+                    {{#unless IsAssetShared}}
+
+                    {{#unless isLife}}
+                    <li class="item-content">
+                        <div class="item-media {{#if Geolock}} text-color-custom {{else}} text-color-lightgray {{/if}}">
+                            <i class="f7-icons icon-protect-geolock3"></i>
+                        </div>
+                        <div class="item-inner">
+                            <div class="item-title">{{@global.LANGUAGE.ASSET_STATUS_LIVE_MSG04}}</div>
+                            <div class="item-after min-width-122 row ">
+                                <button @click="changeState" data-name="Geolock" data-state="false"
+                                    class="button button-fill color-custom col {{#unless Geolock}} disabled {{/unless}}">{{@global.LANGUAGE.COM_MSG050}}</button>
+                                <button @click="changeState" data-name="Geolock" data-state="true"
+                                    class="button button-fill color-custom col {{#if Geolock}} disabled {{/if}}">{{@global.LANGUAGE.COM_MSG049}}</button>
+                            </div>
+                        </div>
+                    </li>
+                    {{/unless}}
+
+                    {{#if IsWitiSolution}}
+                    <!--<li class="item-content">
+                        <div class="item-media {{#if LockDoor}} text-color-red {{else}} text-color-lightgray {{/if}}">
+                            <i class="f7-icons icon-protect-immobilisation3"></i>
+                        </div>
+                        <div class="item-inner">
+                            <div class="item-title">{{@global.LANGUAGE.ASSET_STATUS_LIVE_MSG08}} {{#if LockDoor}}{{@global.LANGUAGE.COM_MSG105}}{{else}}{{@global.LANGUAGE.COM_MSG106}}{{/if}}</div>
+                            <div class="item-after min-width-122">
+                                {{#if LockDoor}}
+                                <button @click="changeState" data-name="LockDoor" data-state="false" class="button button-fill color-custom ">{{@global.LANGUAGE.COM_MSG104}}</button>
+                                {{else}}
+                                <button @click="changeState" data-name="LockDoor" data-state="true" class="button button-fill color-custom ">{{@global.LANGUAGE.COM_MSG103}}</button>
+                                {{/if}}
+                            </div>
+                        </div>
+                    </li>-->
+                    {{else}}
+
+                    {{#if IsImmobilisationSupported}}
+                    <li class="item-content">
+                        <div class="item-media {{#if Immobilise}} text-color-red {{else}} text-color-lightgray {{/if}}">
+                            <i class="f7-icons icon-protect-immobilisation3"></i>
+                        </div>
+                        <div class="item-inner">
+                            <div class="item-title">{{@global.LANGUAGE.ASSET_STATUS_LIVE_MSG05}}</div>
+                            <div class="item-after min-width-122 row ">
+                                <button @click="changeState" data-name="Immobilise" data-state="false"
+                                    class="button button-fill color-custom col {{#unless Immobilise}} disabled {{/unless}}">{{@global.LANGUAGE.COM_MSG050}}</button>
+                                <button @click="changeState" data-name="Immobilise" data-state="true"
+                                    class="button button-fill color-custom col {{#if Immobilise}} disabled {{/if}}">{{@global.LANGUAGE.COM_MSG049}}</button>
+                            </div>
+                        </div>
+                    </li>
+                    <li class="item-content">
+                        <div class="item-media text-color-custom ">
+                            <i class="f7-icons icon-locimmob"></i>
+                        </div>
+                        <div class="item-inner">
+                            <div class="item-title">{{@global.LANGUAGE.ASSET_PROTECT_MSG03}}</div>
+                            <div class="item-after display-flex align-items-center">
+                                <span class="badge color-lightblue margin-right-half tooltip-init"
+                                    data-tooltip="{{@global.LANGUAGE.PROMPT_MSG120}}">?</span>
+                                <div class="min-width-122">
+                                    <button @click="changeState" data-name="Immobilise" data-state="true"
+                                        data-command="locate"
+                                        class="button button-fill color-custom ">{{@global.LANGUAGE.COM_MSG114}}</button>
+                                </div>
+                            </div>
+                        </div>
+                    </li>
+                    {{/if}}
+                    {{/if}}
+
+                    {{#if isLife}}
+
+
+
+                    <li class="item-content">
+                        <div class="item-media text-color-custom">
+                            <i class="f7-icons  icon-live-engine-hours"></i>
+                        </div>
+                        <div class="item-inner">
+                            <div class="item-title text-color-white">{{@global.LANGUAGE.ASSET_PROTECT_MSG04}}</div>
+                            <div class="item-after text-color-white min-width-122">
+                                {{lastUpdateTime}}
+                            </div>
+                        </div>
+                    </li>
+                    <li class="item-content">
+                        <div class="item-media text-color-custom">
+                            <i class="f7-icons icon-protect-position3"></i>
+                        </div>
+                        <div class="item-inner">
+                            <div class="item-title white-space-normal">
+                                {{Address}}
+                                <div class="item-footer text-color-lightgray">
+                                    {{Coords}}
+                                </div>
+                            </div>
+                        </div>
+
+                        {{/if}}
+
+                    <li class="item-content">
+                        <div class="item-media text-color-custom">
+                            <i class="f7-icons icon-header-alarm"></i>
+                        </div>
+                        <div class="item-inner">
+                            <div class="item-title">{{@global.LANGUAGE.ASSET_PROTECT_MSG02}}</div>
+                            <div class="item-after min-width-122">
+                                <a href="/asset-alarm/?imei={{IMEI}}"
+                                    class=" width-100 button button-fill color-custom">{{@global.LANGUAGE.COM_MSG048}}</a>
+                            </div>
+                        </div>
+                    </li>
+
+                    {{/unless}}
+                    {{#if isLife}}
+                    <li class="item-content">
+                        <div class="item-media text-color-custom">
+                            <i class="f7-icons icon-report-trip"></i>
+                        </div>
+                        <div class="item-inner">
+                            <div class="item-title">{{@global.LANGUAGE.ASSET_PLAYBACK_MSG00}}</div>
+                            <div class="item-after min-width-122">
+                                <a href="/asset-playback/?imei={{IMEI}}"
+                                    class=" width-100 button button-fill color-custom">{{@global.LANGUAGE.COM_MSG048}}</a>
+                            </div>
+                        </div>
+                    </li>
+                    {{/if}}
+                    {{#if isProtect}}
+                    <li class="item-content">
+                        <div class="item-media text-color-custom">
+                            <i class="f7-icons icon-report-trip"></i>
+                        </div>
+                        <div class="item-inner">
+                            <div class="item-title">{{@global.LANGUAGE.ASSET_PLAYBACK_MSG00}}</div>
+                            <div class="item-after min-width-122">
+                                <a href="/asset-playback/?imei={{IMEI}}"
+                                    class=" width-100 button button-fill color-custom">{{@global.LANGUAGE.COM_MSG048}}</a>
+                            </div>
+                        </div>
+                    </li>
+                    {{/if}}
+                </ul>
+            </div>
+
+        </div>
+
+
+    </div>
+</template>
+
+
+<script>
+    // script must return component object
+    return {
+        data: function () {
+            let self = this;
+            let imei = decodeURIComponent(self.$route.query.imei);
+            let asset = POSINFOASSETLIST[imei];// let asset = self.$app.methods.getFromStorage('assetList')[imei];
+            let assetImg = self.$app.methods.getAssetImg(asset, { 'assetEdit': true });
+            let additionalFlags = self.$app.methods.getFromStorage('additionalFlags');
+
+            let afs = Protocol.Helper.getAssetStateInfo(POSINFOASSETLIST[imei]);
+
+            console.log(asset)
+
+            let ret = {
+                Name: asset.Name,
+                IMEI: asset.IMEI,
+                IMSI: asset.IMSI,
+                Id: asset.Id,
+                AssetImg: assetImg,
+                ShowPayment: true,
+                ac5: null,
+                renewalLabel: '',
+                SuspendDate: asset.SuspendDate?.slice(0, 10),
+                isNeedToRenew: false,
+                RenewalUrl: API_URL.URL_RENEWAL,
+                SolutionType: asset.SolutionType,
+                isProtect: asset.SolutionType.toLowerCase().indexOf('protect') > -1,
+
+                isLoc8: asset.SolutionType.toLowerCase() === 'loc8',
+                isLife: asset.SolutionType.toLowerCase().indexOf('life') > -1,
+                lastUpdateTime: '',
+                MapId: 'map-loc8-' + self.$app.utils.id(),
+                LiveAsset: asset && asset.SolutionType.toLowerCase().indexOf('protect') === -1 && asset.SolutionType.toLowerCase().indexOf('loc8') === -1 && asset.SolutionType.toLowerCase().indexOf('life') === -1,// || !!viewAll
+                //ViewAll: !!viewAll,
+                MarkersIds: {},
+                Address: asset.lastQueryPosinfo && asset.lastQueryPosinfo.address ? asset.lastQueryPosinfo.address : LANGUAGE.COM_MSG004,
+                Coords: 'GPS: ' + Protocol.Helper.convertDMS(asset.posInfo.lat, asset.posInfo.lng),
+
+                Geolock: afs && afs.geolock ? afs.geolock.value : false,
+                Immobilise: afs && afs.immob ? afs.immob.value : false,
+                LockDoor: afs.lockdoor ? afs.lockdoor.value : false,
+
+                IsImmobilisationSupported: (parseInt(asset._FIELD_INT2) & 1) > 0,
+                IsLockDoorSupported: (parseInt(asset._FIELD_INT2) & 512) > 0,
+
+                IsWitiSolution: asset.SolutionType.toLowerCase() === 'witiprotect' || asset.SolutionType.toLowerCase() === 'witiqprotect',
+                IsAssetShared: asset.isShared,
+                IsAssetLifeIsLive: JSON.parse(asset.LifeIsLive.toLowerCase()),
+                IsLifeProduct : asset.PRDTName.toLowerCase().indexOf('life') != -1
+            };
+            if (self.$app.device.ios && !additionalFlags.elemRc) {
+                //if(!additionalFlags.elemRc){
+                ret.ShowPayment = false;
+            }
+
+            return ret;
+        },
+        methods: {
+            renewNow: function () {
+                let self = this;
+
+                if (self.SolutionType == 'Track' || self.SolutionType == 'Watch') {
+                    cordova.InAppBrowser.open(self.RenewalUrl + '?imei=' + self.IMEI + '&agent=61', '_system');
+                } else {
+                    self.ac5.open();
+                }
+            },
+
+            GetLiveUpdate: function () {
+                let self = this;
+                let assetList = self.$app.methods.getFromStorage('assetList');
+                self.$app.progressbar.show('custom');
+                self.$app.methods.getAssetListPosInfo(assetList, true, function () {
+                    self.$app.progressbar.hide();
+                    self.$app.methods.showToast(LANGUAGE.PROMPT_MSG041);
+                });
+            },
+            changeState: function (e) {
+                let self = this;
+
+                let $el = $$(e.target);
+                let alarm = $el.data('name');
+                let state = JSON.parse($el.data('state'));
+                let command = $el.data('command');
+                let data = {
+                    MajorToken: self.$root.MajorToken,
+                    MinorToken: self.$root.MinorToken,
+                    code: self.Id,
+                    state: state ? 'on' : 'off'
+                };
+                let url = API_URL.SET_GEOLOCK;
+                if (alarm === 'Immobilise') {
+                    url = API_URL.SET_IMMOBILISATION;
+                } else if (alarm === 'LockDoor') {
+                    url = API_URL.SET_DOORLOCK;
+                    data.state = state ? 'lock' : 'unlock';
+                }
+
+                $el.addClass('disabled');
+                self.$app.progressbar.show('gray');
+                self.$app.request.promise.get(url, data, 'json')
+                    .then(function (result) {
+                        if (result.data && result.data.MajorCode === '000') {
+                            $el.removeClass('disabled');
+                            self.$app.methods.setStatusNewState({
+                                asset: self.IMEI,
+                                forAlarm: alarm,
+                                state: state
+                            });
+                            self.$setState({ [alarm]: state });
+                            self.$app.methods.checkBalance();
+                            if (command && command === 'locate') {
+                                self.$app.methods.sendCommand(API_URL.SEND_COM_POS, self.IMSI);
+                            }
+
+                        } else if (result.data && result.data.MajorCode === '200' && result.data.MinorCode === '1003') {
+                            self.$app.methods.customDialog({ title: LANGUAGE.PROMPT_MSG039, text: LANGUAGE.PROMPT_MSG040 });
+
+                        } else if (result.data && result.data.MajorCode === '100' && result.data.MinorCode === '1003') {
+                            self.$app.methods.customDialog({ title: LANGUAGE.PROMPT_MSG039, text: LANGUAGE.PROMPT_MSG040 });
+
+                        } else if (result.data && result.data.MajorCode === '100' && result.data.MinorCode === '1006') {
+                            self.$app.methods.customDialogNoCredit();
+
+                        } else if (result.data && result.data.MajorCode === '100' && result.data.MinorCode === '0000') {
+                            self.$app.methods.customDialog({ title: params.imei, text: LANGUAGE.PROMPT_MSG085 });
+
+                        } else {
+                            self.$app.dialog.alert(LANGUAGE.PROMPT_MSG023 + `<br>MajorCode: ${result.data.MajorCode}<br>MinorCode: ${result.data.MinorCode}<br>${result.data.Data}`);
+                        }
+                    })
+                    .finally(function () {
+                        self.$app.utils.nextFrame(() => {
+                            self.$app.progressbar.hide();
+                        });
+                    })
+                    .catch(function (err) {
+                        console.log(err);
+                        if (err && err.status === 404) {
+                            self.$app.dialog.alert(LANGUAGE.PROMPT_MSG002);
+                        } else {
+                            self.$app.dialog.alert(LANGUAGE.PROMPT_MSG003);
+                        }
+                    });
+            },
+            UpdateData: function () {
+                let self = this;
+
+                //self.$app.dialog.alert('here')
+
+
+                for (let i = 0; i < self.AssetsIMEIs.length; i++) {
+                    let asset = POSINFOASSETLIST[self.AssetsIMEIs[i]];
+
+                    if (asset && asset.posInfo && parseFloat(asset.posInfo.lat) !== 0 && parseFloat(asset.posInfo.lng) !== 0) {
+
+                        let marker = self.MarkersGroup.getLayer(self.MarkersIds[self.AssetsIMEIs[i]]);
+                        if (marker) {
+                            //self.$app.dialog.alert(asset.posInfo.positionTime.format(window.COM_TIMEFORMAT))
+                            marker.setLatLng([asset.posInfo.lat, asset.posInfo.lng]).setPopupContent(self.$app.methods.getMarkerDataTable(asset));
+                            let popup = marker.getPopup();
+                            if (popup.isOpen()) {
+                                popup.update();
+                                Protocol.Helper.getAddressByGeocoder({ lat: asset.posInfo.lat, lng: asset.posInfo.lng }, function (address) {
+                                    asset.lastQueryPosinfo = { lat: Math.floor(asset.posInfo.lat * 10000) / 10000, lng: Math.floor(asset.posInfo.lng * 10000) / 10000, address: address };
+                                    if (popup.isOpen()) {
+                                        marker.setPopupContent(self.$app.methods.getMarkerDataTable(asset));
+                                        popup.update();
+                                    }
+                                });
+                            }
+                        }
+                    }
+                }
+
+                if (!self.ViewAll) {
+                    self.$setState({
+                        Lat: POSINFOASSETLIST[self.AssetsIMEIs[0]].posInfo.lat,
+                        Lng: POSINFOASSETLIST[self.AssetsIMEIs[0]].posInfo.lng
+                    });
+                    self.PanoButtonUpdate([POSINFOASSETLIST[self.AssetsIMEIs[0]].posInfo.lat, POSINFOASSETLIST[self.AssetsIMEIs[0]].posInfo.lng]);
+                }
+
+            },
+            GetProtectUpdate: function () {
+                let self = this;
+                let data = {
+                    url: API_URL.SEND_COM_POS,
+                    imsi: self.IMSI,
+                    imei: self.IMEI,
+                    type: 'position',
+                    timeStamp: moment().format(window.COM_TIMEFORMAT)
+                }
+                self.$app.methods.precheckSendCommand(data);
+                //self.$app.methods.sendCommand(API_URL.SEND_COM_POS, self.IMSI);
+            },
+            PanoButtonUpdate: function (latlng = []) {
+                let self = this;
+                if (!latlng.length) {
+                    latlng = [self.Lat, self.Lng];
+                }
+                self.StreetViewService.getPanorama({ location: new google.maps.LatLng(latlng[0], latlng[1]), radius: 50 }, self.ProcessSVData);
+            },
+
+            ProcessSVData: function (data, status) {
+                this.$setState({
+                    SVExist: status === 'OK'
+                });
+            },
+            ShowStreetView: function (e) {
+                let self = this;
+                let $target = $$(e.target).closest('a');
+
+                let content = `
+                        <div class="popup" >
+                            <div class="view">
+                                <div class="page">
+                                    <div class="page-content">
+                                        <div class="fab fab-left-top fab-pano-close popup-close">
+                                            <a href="#">
+                                                <i class="f7-icons">close</i>
+                                            </a>
+                                        </div>
+                                        <div id="pano" class="pano" ></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>`;
+
+                self.DynamicMenuPopup = self.$app.popup.create({
+                    content: content,
+                    on: {
+                        open: function (popup) {
+                            let panoramaOptions = {
+                                position: new google.maps.LatLng($target.data('lat'), $target.data('lng')),
+                                pov: {
+                                    heading: 0,
+                                    pitch: 0
+                                },
+                                linksControl: false,
+                                panControl: false,
+                                enableCloseButton: false,
+                                addressControl: false
+                            };
+                            let panorama = new google.maps.StreetViewPanorama(document.getElementById('pano'), panoramaOptions);
+
+                        },
+                        closed: function (popup) {
+                            popup.$el.remove();
+                            popup.destroy();
+                        },
+                    }
+                }).open()
+            },
+            initMapSettings: function () {
+                let self = this;
+                let mapSettingsObg = self.$app.methods.getFromStorage('mapSettings');
+
+                self.Geofences = [];
+                self.Pois = [];
+                mapSettingsObg && mapSettingsObg.showGeofences ? self.showGeofences(self.Map) : '';
+                if (!self.$app.methods.isObjEmpty(mapSettingsObg)) {
+                    if (mapSettingsObg.showGeofences) self.showGeofences(self.Map);
+                    if (mapSettingsObg.showPois) self.showPois(self.Map);
+                }
+            },
+            isGeofencesShowed: function () {
+                return this.Geofences ? !!this.Geofences.length : false;
+            },
+            showGeofences: function (map) {
+                let self = this;
+                if (!self.isGeofencesShowed()) {
+                    let geofenceList = self.$app.methods.getFromStorage('geofenceList');
+                    if (!app.methods.isObjEmpty(geofenceList)) {
+                        const keys = Object.keys(geofenceList);
+                        for (const key of keys) {
+                            let geofenceDetails = {
+                                Name: geofenceList[key].Name,
+                                Code: geofenceList[key].Code,
+                            };
+                            let markerData = self.$app.methods.getGeofenceDataTable(geofenceList[key], { geogroup: false });
+                            if (geofenceList[key].GeoType === 1) { //circle
+                                if (geofenceList[key].Lat && geofenceList[key].Lng && geofenceList[key].Radius) {
+                                    geofenceDetails.polygon = L.circle([geofenceList[key].Lat, geofenceList[key].Lng], {
+                                        ...self.$app.data.PolygonCustomization,
+                                        radius: geofenceList[key].Radius,
+                                    }).bindPopup(markerData, { maxWidth: 280, closeButton: false })//.bindTooltip(label ,{permanent: false, direction: 'right'});
+                                }
+                            } else if (geofenceList[key].GeoPolygon) {
+                                let polygonCoordsArr = geofenceList[key].GeoPolygon.split('((').pop().split('))')[0].split(',');
+                                let geojsonArr = [];
+                                for (let i = polygonCoordsArr.length - 1; i >= 0; i--) {
+                                    geojsonArr.push(polygonCoordsArr[i].split(' ').map(parseFloat).reverse());
+                                }
+                                geofenceDetails.polygon = L.polygon(geojsonArr, {
+                                    ...self.$app.data.PolygonCustomization,
+                                }).bindPopup(markerData, { maxWidth: 280, closeButton: false }); //.bindTooltip(label ,{permanent: false, direction: 'right'});
+                            }
+
+                            if (geofenceDetails.polygon) {
+                                geofenceDetails.polygon.addTo(map);
+                                self.Geofences.push(geofenceDetails);
+                            }
+                        }
+                    }
+                }
+            },
+            hideGeofences: function (map) {
+                let self = this;
+                if (self.Geofences && self.Geofences.length) {
+                    for (let i = self.Geofences.length - 1; i >= 0; i--) {
+                        if (self.Geofences[i].polygon) {
+                            map.removeLayer(self.Geofences[i].polygon);
+                            //itm.openTooltip()
+                        }
+                    }
+                    self.Geofences.length = 0;
+                }
+            },
+            isPoisShowed: function () {
+                return this.Pois ? !!this.Pois.length : false;
+            },
+            showPois: function (map) {
+                let self = this;
+                if (self.isPoisShowed()) {
+                    return
+                }
+                let poiList = self.$app.methods.getFromStorage('POIList');
+                if (!poiList || !poiList.length) {
+                    return
+                }
+                poiList.forEach((poi) => {
+                    if (!poi.Lat || !poi.Lng) {
+                        return
+                    }
+
+                    let poiDetails = {
+                        Name: poi.Name,
+                        Code: poi.Code,
+                    };
+                    poiDetails.marker = L
+                        .marker([poi.Lat, poi.Lng], { customName: poi.Name, icon: self.$app.methods.getMarkerIcon({ poi: true, type: poi.Icon }) })
+                        .bindPopup(self.$app.methods.getPoiDataTable(poi), { maxWidth: self.$app.data.MaxMapPopupWidth, closeButton: false })
+
+                    poiDetails.marker.addTo(map);
+                    self.Pois.push(poiDetails);
+                })
+            },
+            hidePois: function (map) {
+                let self = this;
+                if (self.Pois && self.Pois.length) {
+                    for (let i = self.Pois.length - 1; i >= 0; i--) {
+                        if (self.Pois[i].marker) {
+                            map.removeLayer(self.Pois[i].marker);
+                            //itm.openTooltip()
+                        }
+                    }
+                    self.Pois.length = 0;
+                }
+            },
+            showTooltips: function (markersGroup) {
+                let markers = markersGroup.getLayers();
+                if (markers.length) {
+                    markers.forEach((itm) => {
+                        itm.bindTooltip(itm.options.customName,
+                            {
+                                offset: L.point(15, -20),
+                                permanent: true,
+                                direction: 'right',
+                                //opacity: 0.5
+                            }
+                        )
+                    })
+                }
+            },
+            hideTooltips: function (markersGroup) {
+                let markers = markersGroup.getLayers();
+                if (markers.length) {
+                    markers.forEach((itm) => {
+                        itm.unbindTooltip();
+                    })
+                }
+            },
+            setMode: function (e) {
+                let self = this;
+
+                // CUS_cbab4610_d9f3_49c0_91cc_48294c829b53 to live
+                // CUS_edd81a90_3956_4ed7_85bb_accdc89c30c9 to protect
+
+
+                let data = {
+                    IMSI: self.IMSI,
+                    SMSType: self.IsAssetLifeIsLive ? 'CUS_edd81a90_3956_4ed7_85bb_accdc89c30c9' : 'CUS_cbab4610_d9f3_49c0_91cc_48294c829b53',
+                    CustomerCode: self.$root.MajorToken,
+                    DeviceToken: localStorage.PUSH_DEVICE_TOKEN
+                }
+
+                let msg = self.IsAssetLifeIsLive ? LANGUAGE.COM_MSG124 : LANGUAGE.COM_MSG123
+      
+                let buttons = [
+                 
+                    {
+                        text: 'No',
+                    },
+                    {
+                        text: 'Yes',
+                        onClick: function () {
+                            self.$app.request.promise.post(API_URL.SEND_COMMAND, data, 'json')
+                                .then(function (result) {
+                                    if (result.data.MajorCode === '000') {
+                                        if(!self.IsAssetLifeIsLive) {
+                                            self.$app.dialog.alert(LANGUAGE.COM_MSG125);
+                                        } else {
+                                            self.$app.dialog.alert(LANGUAGE.COM_MSG126);
+                                        }
+                                     
+
+                                        POSINFOASSETLIST[self.IMEI].LifeIsLive = self.IsAssetLifeIsLive ? 'False' : 'True';
+                                   
+                                    } else {
+                                        self.$app.dialog.alert(LANGUAGE.PROMPT_MSG023 + `<br>MajorCode: ${result.data.MajorCode}<br>MinorCode: ${result.data.MinorCode}<br>${result.data.Data}`);
+
+                                    }
+                                })
+                                .catch(function (err) {
+                                    console.log(err);
+
+                                    if (err && err.status === 404) {
+                                        self.dialog.alert(LANGUAGE.PROMPT_MSG002);
+                                    } else {
+                                        self.dialog.alert(LANGUAGE.PROMPT_MSG003);
+                                    }
+                                });
+                        }
+                    }
+                ]
+
+                self.$app.methods.customDialog({ text: msg, buttons });
+            },
+            showMapControlls: function (e) {
+                let self = this;
+                let mapSettingsObg = self.$app.methods.getFromStorage('mapSettings');
+
+                let content = `<div class="popover menu-popover" >
+                                        <div class="popover-inner">
+                                            <div class="list no-hairlines no-hairlines-between">
+                                                <ul>
+                                                    <li class="item-content changeGeofenceState popover-close">
+                                                        <div class="item-media ${mapSettingsObg && mapSettingsObg.showGeofences ? 'text-color-custom' : 'text-color-lightgray'} ">
+                                                            <i class="f7-icons icon-menu-geofence "></i>
+                                                        </div>
+                                                        <div class="item-inner">
+                                                            <div class="item-title text-color-black">${LANGUAGE.COM_MSG062}</div>
+                                                            <div class="item-after">
+                                                                <div class="toggle color-custom">
+                                                                    <input type="checkbox" name="checkbox-map-settings" value="showGeofences" ${mapSettingsObg && mapSettingsObg.showGeofences ? 'checked' : ''}>
+                                                                    <span class="toggle-icon"></span>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </li>
+                                                    <li class="item-content changeTooltipState popover-close">
+                                                        <div class="item-media ${mapSettingsObg && mapSettingsObg.showTooltips ? 'text-color-custom' : 'text-color-lightgray'} ">
+                                                            <i class="f7-icons icon-asset-name "></i>
+                                                        </div>
+                                                        <div class="item-inner">
+                                                            <div class="item-title text-color-black">${LANGUAGE.COM_MSG108}</div>
+                                                            <div class="item-after">
+                                                                <div class="toggle color-custom">
+                                                                    <input type="checkbox" name="checkbox-map-settings" value="showTooltips" ${mapSettingsObg && mapSettingsObg.showTooltips ? 'checked' : ''}>
+                                                                    <span class="toggle-icon"></span>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </li>
+                                                    <li class="item-content changePoiState popover-close">
+                                                        <div class="item-media ${mapSettingsObg && mapSettingsObg.showPois ? 'text-color-custom' : 'text-color-lightgray'} ">
+                                                            <i class="f7-icons icon-live-address "></i>
+                                                        </div>
+                                                        <div class="item-inner">
+                                                            <div class="item-title text-color-blacks">${LANGUAGE.COM_MSG119}</div>
+                                                            <div class="item-after">
+                                                                <div class="toggle color-custom">
+                                                                    <input type="checkbox" name="checkbox-map-settings" value="showPois" ${mapSettingsObg && mapSettingsObg.showPois ? 'checked' : ''}>
+                                                                    <span class="toggle-icon"></span>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </li>
+                                                </ul>
+                                            </div>
+                                        </div>
+                                    </div>`;
+
+                self.$app.popover.create({
+                    backdrop: false,
+                    closeByOutsideClick: true,
+                    targetEl: $$(e.target).closest('a'),
+                    content: content,
+                    on: {
+                        opened: function (popover) {
+                            let GeofencesState = popover.$el.find('.changeGeofenceState');
+                            let TooltipState = popover.$el.find('.changeTooltipState');
+                            let PoiState = popover.$el.find('.changePoiState');
+
+                            GeofencesState.on('click', function () {
+                                let input = $$(this).find('input[name="checkbox-map-settings"]');
+                                let newState = !input.prop("checked");
+                                mapSettingsObg[input.val()] = newState;
+                                self.$app.methods.setInStorage({ name: 'mapSettings', data: mapSettingsObg });
+                                newState ? self.showGeofences(self.Map) : self.hideGeofences(self.Map);
+                            });
+                            TooltipState.on('click', function () {
+                                let input = $$(this).find('input[name="checkbox-map-settings"]');
+                                let newState = !input.prop("checked");
+                                mapSettingsObg[input.val()] = newState;
+                                self.$app.methods.setInStorage({ name: 'mapSettings', data: mapSettingsObg });
+                                newState ? self.showTooltips(self.MarkersGroup) : self.hideTooltips(self.MarkersGroup);
+                            });
+                            PoiState.on('click', function () {
+                                let input = $$(this).find('input[name="checkbox-map-settings"]');
+                                let newState = !input.prop("checked");
+                                mapSettingsObg[input.val()] = newState;
+                                self.$app.methods.setInStorage({ name: 'mapSettings', data: mapSettingsObg });
+                                newState ? self.showPois(self.Map) : self.hidePois(self.Map);
+                            });
+                        },
+                        closed: function (popover) {
+                            popover.destroy();
+                        }
+                    }
+                }).open();
+            },
+
+            initRenewalPopup: function () {
+                let self = this;
+
+
+
+                let asset = POSINFOASSETLIST[self.IMEI];
+
+                setTimeout(() => {
+
+                    if (self.ShowPayment) {
+                        let isNeedToRenew = !asset?.SubscriptionId.length && self.SuspendDate && (2419200000 + +moment.duration(Protocol.Helper.getDifferenceBTtwoDates(self.SuspendDate, moment()), "milliseconds")) > 0 && (self.SolutionType == 'QProtect' || self.SolutionType == 'Track' || self.SolutionType == 'Loc8' || self.SolutionType == 'Watch')
+
+                        let isExpired = 2419200000 + +moment.duration(Protocol.Helper.getDifferenceBTtwoDates(self.SuspendDate, moment()), "milliseconds") > 2419200000
+
+                        self.$setState({ isNeedToRenew: isNeedToRenew })
+                        self.$setState({ renewalLabel: isExpired ? LANGUAGE.PROMPT_MSG137_.format(self.SuspendDate) : LANGUAGE.PROMPT_MSG135_.format(self.SuspendDate) })
+
+                        if (isNeedToRenew) {
+                            let additionalFlags = self.$app.methods.getFromStorage('additionalFlags');
+                            if (!additionalFlags['modalRenew' + self.IMEI]) {
+                                self.$app.methods.showNoticeForRenewal({
+                                    date: self.SuspendDate,
+                                    imei: self.IMEI,
+                                    isExpired: isExpired
+                                });
+                            }
+                        }
+                    }
+
+                    self.ac5 = self.$app.actions.create({
+                        buttons: [
+                            {
+                                text: LANGUAGE.ASSET_PROTECT_MSG01,
+                                onClick: function () {
+                                    mainView.router.navigate('/asset-upgrade/?imei=' + self.IMEI);
+                                }
+                            },
+                            {
+                                text: LANGUAGE.PROMPT_MSG133_,
+                                onClick: function () {
+                                    cordova.InAppBrowser.open(self.RenewalUrl + '?imei=' + self.IMEI + '&agent=1');
+                                }
+                            },
+                            {
+                                text: 'Cancel',
+                                color: 'red',
+                                onClick: function () {
+                                }
+                            },
+                        ]
+                    });
+
+                }, 3000)
+
+
+            },
+        },
+
+        on: {
+            pageInit: function (e, page) {
+                let self = this;
+
+                let asset = POSINFOASSETLIST[self.IMEI];
+
+                console.log(self.IsAssetLifeIsLive)
+                self.initRenewalPopup()
+
+                let latlng = {
+                    lat: asset.posInfo.lat,
+                    lng: asset.posInfo.lng
+                };
+
+                Protocol.Helper.getAddressByGeocoder(latlng, function (address) {
+                    asset.lastQueryPosinfo = { lat: Math.floor(latlng.lat * 10000) / 10000, lng: Math.floor(latlng.lng * 10000) / 10000, address: address };
+                    self.$setState({ Address: address })
+                });
+
+                if (self.isLoc8 || self.isLife) {
+                    self.StreetViewService = new google.maps.StreetViewService();
+                    self.Map = Protocol.Helper.createMap({ target: self.MapId, latLng: [0, 0], zoom: 2 });
+                    self.MarkersGroup = L.markerClusterGroup({ 'maxClusterRadius': 35, });
+
+                    self.AssetsIMEIs = [];
+                    //if (!self.ViewAll){
+                    if (!POSINFOASSETLIST[self.IMEI] || !POSINFOASSETLIST[self.IMEI].posInfo || parseFloat(POSINFOASSETLIST[self.IMEI].posInfo.lat) === 0 && parseFloat(POSINFOASSETLIST[self.IMEI].posInfo.lng) === 0) {
+                        self.$app.dialog.confirm(LANGUAGE.PROMPT_MSG081, function () {
+                            self.$app.methods.sendCommand(API_URL.SEND_COM_POS, self.IMSI);
+                        });
+                        return;
+                    }
+                    self.AssetsIMEIs.push(self.IMEI);
+                    /*}else{
+                        let assetList = self.$app.methods.getFromStorage('assetList');
+                        self.AssetsIMEIs = !self.$app.methods.isObjEmpty(assetList) ? Object.keys(assetList) : [];
+                    }*/
+
+                    for (let i = 0; i < self.AssetsIMEIs.length; i++) {
+                        let asset = POSINFOASSETLIST[self.AssetsIMEIs[i]];
+                        //console.log(asset.posInfo.positionTime._i);
+
+                        self.$setState({
+                            lastUpdateTime: asset.posInfo.positionTime ? moment.duration(Protocol.Helper.getDifferenceBTtwoDates(asset.posInfo.positionTime, moment()), "milliseconds").format('d[d] h[h] m[m]') : LANGUAGE.COM_MSG031,//+moment.duration(Protocol.Helper.getDifferenceBTtwoDates(asset.posInfo.positionTime,moment()), "minutes")
+                        });
+
+                        if (asset && asset.posInfo && parseFloat(asset.posInfo.lat) !== 0 && parseFloat(asset.posInfo.lng) !== 0) {
+                            let marker = L.marker([asset.posInfo.lat, asset.posInfo.lng], { customName: asset.Name, icon: self.$app.methods.getMarkerIcon({ asset: true, type: asset.SolutionType }) });
+
+                            /*marker.on("click", function (event) {
+                                mainView.router.navigate('/asset-track/?imei='+self.IMEI);			
+                            });*/
+                            marker
+                                .bindPopup(self.$app.methods.getMarkerDataTable(asset), { maxWidth: self.$app.data.MaxMapPopupWidth, closeButton: false })
+                                .on('popupopen', function (e) {
+                                    /*mainView.router.navigate('/asset-track/?imei='+self.IMEI);	
+                                    self.Map.closePopup();
+                                    var bounds = L.latLngBounds([[asset.posInfo.lat, asset.posInfo.lng]]);
+                                    var wantedZoom = self.Map.getBoundsZoom(bounds, true);
+                                    var center = bounds.getCenter();
+                                    self.Map.setView(center);*/
+                                    if (!asset.lastQueryPosinfo || !asset.lastQueryPosinfo.address) {
+                                        Protocol.Helper.getAddressByGeocoder({ lat: asset.posInfo.lat, lng: asset.posInfo.lng }, function (address) {
+                                            asset.lastQueryPosinfo = { lat: Math.floor(asset.posInfo.lat * 10000) / 10000, lng: Math.floor(asset.posInfo.lng * 10000) / 10000, address: address };
+                                            e.target.setPopupContent(self.$app.methods.getMarkerDataTable(asset));
+                                            e.popup.update();
+                                        });
+                                    }
+                                });
+                            marker.addTo(self.MarkersGroup);
+                            //asset.markerId = self.MarkersGroup.getLayerId(marker);
+                            self.MarkersIds[self.AssetsIMEIs[i]] = self.MarkersGroup.getLayerId(marker);
+                        }
+                    }
+
+                    if (self.MarkersGroup.getBounds().isValid()) {
+                        self.MarkersGroup.addTo(self.Map);
+                        self.Map.fitBounds(self.MarkersGroup.getBounds(), { padding: [16, 16], maxZoom: 15 });
+                    }
+
+                    //if(!self.ViewAll){
+                    self.$setState({
+                        Lat: POSINFOASSETLIST[self.AssetsIMEIs[0]].posInfo.lat,
+                        Lng: POSINFOASSETLIST[self.AssetsIMEIs[0]].posInfo.lng
+                    });
+                    self.PanoButtonUpdate([POSINFOASSETLIST[self.AssetsIMEIs[0]].posInfo.lat, POSINFOASSETLIST[self.AssetsIMEIs[0]].posInfo.lng]);
+                    //}
+
+                    self.$app.methods.getPOIList(self.initMapSettings);
+                    self.$app.methods.getGeofenceList(self.initMapSettings);
+
+                    AssetUpdateEvents.on('updateReceived', self.UpdateData);
+                }
+
+            },
+            pageBeforeRemove: function () {
+                AssetUpdateEvents.off('updateReceived', this.UpdateData);
+                if (this.MarkersGroup) {
+                    this.MarkersGroup.clearLayers();
+                }
+                if (this.Map) {
+                    this.Map.remove()
+                }
+            },
+            pageAfterIn: function () {
+                let self = this;
+
+
+
+            },
+            pageAfterOut: function () {
+                // page has left the view
+            },
+
+        }
+    };
+</script>

@@ -1,0 +1,79 @@
+<!--suppress JSAnnotator -->
+<template>
+    <div class="page " data-name="live"> <!-- page-with-subnavbar -->
+        <!-- Top Navbar -->
+        <div class="navbar">
+            <div class="navbar-bg"></div>
+            <div class="navbar-inner">
+                <div class="left">
+                    <a href="#" class="link icon-only back" >
+                        <i class="if-not-ios f7-icons icon-header-arrow-back"></i>
+                        <i class="if-ios icon icon-back"></i>
+                    </a>
+                </div>
+                <div class="title sliding">
+                   Live
+                </div>
+                <div class="right">
+                    <a href="#" name="switch-cam" class="link icon-only ">
+						<i class="f7-icons icon-switch"></i>
+					</a>
+                    <a href="/gallery/?imei={{imei}}" class="link icon-only ">
+						<i class="f7-icons icon-gallery"></i>
+					</a>
+                </div>
+            </div>
+        </div>
+
+        <div class="page-content" style="border: 0 solid #000; background-color: #000;height: 100vh;padding-top: calc(80vh - 260px)">
+            <div id="palyer053810724507CH1" class="player-modal" style="z-index: 10000; width:100%; height: 224px; display: block;">
+				<iframe src="{{iframeURL}}" id="livestream" height="100%" width="100%" title="Live" allow="fullscreen" style="border: none;"></iframe>
+			</div>
+        </div>
+    </div>
+</template>
+
+<script>
+    // script must return component object
+    return {
+        data: function () {
+            let self = this;
+			let imei =  decodeURIComponent(self.$route.query.imei); //'0000053810725908';//
+			let devId = imei.slice(4);
+			
+            let ret = {
+				imei,
+				devId,
+				indexCam: self.$route.query.chn,				
+				iframeURL: ''
+            };
+
+            return ret;
+        },
+        methods: {
+            initCam: function (index) {
+                let self = this;
+				
+				self.$setState({
+					iframeURL: 'https://securetrack.co/808gps/open/player/video.html?lang=en&amp;devIdno='+self.devId+'&amp;index='+index+'&amp;channel=1&amp;close=20', 
+				});
+			}
+        },
+        on: {
+            pageInit: function (e, page) {
+                let self = this;
+                let switchCam = page.$el.find('a[name = "switch-cam"]');
+				
+				self.initCam(self.indexCam);
+				
+				switchCam.on('click', function(){                    
+					self.$setState({
+						indexCam: self.indexCam>1?1:2
+					});
+					
+					self.initCam(self.indexCam);
+                });			
+            },
+        }
+    };
+</script>

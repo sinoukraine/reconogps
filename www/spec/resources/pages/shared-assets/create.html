@@ -1,0 +1,172 @@
+<!--suppress JSAnnotator -->
+<template>
+<!-- Page, data-name contains page name which can be used in callbacks -->
+        <div class="page " data-name="contact-edit"> <!-- page-with-subnavbar -->
+        <!-- Top Navbar -->
+            <div class="navbar">
+                <div class="navbar-bg"></div>
+                <div class="navbar-inner">
+                    <div class="left">
+                        <a href="#" class="link icon-only back" >
+                            <i class="if-not-ios text-color-white f7-icons icon-header-arrow-back"></i>
+                            <i class="if-ios text-color-white icon icon-back"></i>
+                        </a>
+                    </div>
+                    <div class="title sliding">{{PageTitle}}</div>
+                    <div class="right">
+                        <label for="submit-form-create-new-share" class="link icon-only">
+                            <i class="f7-icons icon-header-apply text-color-white"></i>
+                        </label>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Scrollable page content-->
+            <form name="ShareNewAsset" class="page-content">
+                <!--<input type="hidden" name="Code" value="{{Code}}">-->
+                <input type="submit" id="submit-form-create-new-share" class="display-none" />
+
+                <div class="list no-margin no-hairlines ">
+                    <ul>
+                        <li>
+                            <a key="key-asset-list" class="item-link smart-select smart-select-init smart-select-asset-list custom-smart-select" data-open-in="popup" data-form-color-theme="green" data-searchbar="true" data-close-on-select="true" data-searchbar-placeholder="{{@global.LANGUAGE.COM_MSG002}}" data-append-searchbar-not-found="{{@global.LANGUAGE.PROMPT_MSG000}}" >
+                                <select name="Assets" required validate>
+                                    {{#AssetList}}
+                                    <option value="{{IMEI}}">{{Name}}</option>
+                                    {{/AssetList}}
+                                </select>
+                                <div class="item-content item-input">
+                                    <div class="item-media text-color-custom">
+                                        <i class="f7-icons icon-asset-name "></i>
+                                    </div>
+                                    <div class="item-inner">
+                                        <div class="item-title item-label text-color-lightgray ">{{@global.LANGUAGE.ASSET_SELECT_MSG01}}</div>
+                                    </div>
+                                </div>
+                            </a>
+                        </li>
+                        <li class="item-content item-input ">
+                            <div class="item-media text-color-custom"><i class="f7-icons icon-live-engine-hours "></i></div>
+                            <div class="item-inner">
+                                <div class="item-title item-label text-color-lightgray">{{@global.LANGUAGE.SHARE_ASSETS_MSG006}}</div>
+                                <div class="item-input-wrap ">
+                                    <input type="tel" name="Days" value="{{Days}}" maxlength="200" placeholder="{{@global.LANGUAGE.SHARE_ASSETS_MSG006}}" pattern="[0-9]*" data-error-message="Only numbers please!">
+                                </div>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+
+            </form>
+        </div>
+</template>
+
+
+<script>
+  // script must return component object
+    return {
+        data: function () {
+            let self = this;
+
+
+            let ret = {
+                PageTitle: LANGUAGE.SHARE_ASSETS_MSG005,
+                AssetList: [],
+                Days: 30
+            };
+
+           /* if(self.$route.query.code){
+                let contactList = self.$app.methods.getFromStorage('contactList');
+                ret = contactList.find(obj => obj.Code === self.$route.query.code);
+                ret.PageTitle =  LANGUAGE.CONTACT_LIST_MSG03;
+            }
+*/
+            return ret;
+        },
+        methods: {
+
+            saveData: function(data, url){
+                let self = this;
+
+                self.$app.preloader.show();
+                self.$app.request.promise.post(url, data, 'json')
+                    .then(function (result) {
+                        if(result.data.MajorCode === '000') {
+                            self.$app.methods.customDialog({title: LANGUAGE.PASSWORD_FORGOT_MSG14 + ' - ' + result.data.Data.Code, text: LANGUAGE.SHARE_ASSETS_MSG016})
+                            mainView.router.back({force: true, ignoreCache: true});
+
+                        }else{
+                            self.$app.dialog.alert(LANGUAGE.PROMPT_MSG023 + `<br>MajorCode: ${result.data.MajorCode}<br>MinorCode: ${result.data.MinorCode}`);
+                        }
+                    })
+                    .finally(function () {
+                        self.$app.preloader.hide();
+                    })
+                    .catch(function (err) {
+                        console.log(err);
+                        if (err && err.status === 404){
+                            self.$app.dialog.alert(LANGUAGE.PROMPT_MSG002);
+                        }else{
+                            self.$app.dialog.alert(LANGUAGE.PROMPT_MSG003);
+                        }
+                    });
+            },
+        },
+
+        on: {
+            pageInit: function (e, page) {
+                let self = this;
+
+                self.$app.preloader.show();
+                self.$app.methods.getMySharedAssetList()
+                  .then(sharedAssetList => {
+                      let imeis = sharedAssetList.map(itm => itm.IMEI)
+                      let assetListObj = self.$app.methods.getFromStorage("assetList");
+                      let keys = Object.keys(assetListObj);
+                      let assetList = [];
+                      for (const key of keys) {
+                          if(!assetListObj[key].isShared && imeis.indexOf(key) === -1 ){
+                              assetListObj[key].AssetImg = self.$app.methods.getAssetImg(assetListObj[key], {'smartSelect':true});
+                              assetList.push(assetListObj[key]);
+                          }
+                      }
+                      assetList.sort(function(a, b) {
+                          if (a.Name < b.Name) return -1;
+                          if (a.Name > b.Name) return 1;
+                          return 0;
+                      });
+
+                      self.$setState({
+                          AssetList: assetList
+                      }, () => {
+                          self.$app.preloader.hide();
+                      })
+                  })
+
+                let form = page.$el.find('[name = "ShareNewAsset"]');
+                $$(form).on('submit', function(e){
+                    e.preventDefault();
+
+                    let url = API_URL.START_SHARE_ASSET;
+                    let data = {
+                        MajorToken: self.$app.data.MajorToken,
+                        //MinorToken: self.$app.data.MinorToken,
+
+                        imei: page.$el.find('[name="Assets"]').val(),
+                        days: page.$el.find('[name="Days"]').val(),
+                    };
+                    console.log(data)
+
+                    self.saveData(data, url);
+
+                    return false;
+                });
+
+            },
+            pageAfterOut: function () {
+
+            },
+
+        }
+    };
+</script>

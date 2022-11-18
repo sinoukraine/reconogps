@@ -1,0 +1,508 @@
+<!--suppress JSAnnotator -->
+<template>
+<!-- Page, data-name contains page name which can be used in callbacks -->
+        <div class="page " data-name="asset-add-fuel"> <!-- page-with-subnavbar -->
+        <!-- Top Navbar -->
+            <div class="navbar">
+                <div class="navbar-bg"></div>
+                <div class="navbar-inner">
+                    <div class="left">
+                        <a href="#" class="link icon-only back" >
+                            <i class="if-not-ios f7-icons icon-header-arrow-back text-color-white"></i>
+                            <i class="if-ios icon icon-back text-color-white"></i>
+                        </a>
+                    </div>
+                    <div class="title sliding">{{PageTitle}}</div>
+                    <div class="right">
+                        <label for="submit-form-asset-add-fuel" class="link icon-only">
+                            <i class="f7-icons icon-header-apply text-color-white"></i>
+                        </label>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Scrollable page content-->
+            <form name="AssetAddFuelForm" class="page-content">
+                <!--<input type="hidden" name="Code" value="{{Code}}">-->
+                <input type="submit" id="submit-form-asset-add-fuel" class="display-none" />
+                <input type="file" hidden name="ImageInput" id="ImageInput" accept="image/*">
+                <div class="block asset-image-big-wrapper text-align-center no-margin-top padding-vertical bg-color-lightgray">
+                    <a @click="showUploadPhotoOptions" href="#" class="link">
+                        {{AssetImg}}
+                    </a>
+                    <a @click="showUploadPhotoOptions" href="#" class="link add-image-button bg-color-custom color-white">
+                        <i class="f7-icons icon-photo1"></i>
+                    </a>
+                </div>
+                <div class="list no-margin-top no-hairlines ">
+                    <ul>
+                        <li class="item-content item-input ">
+                            <div class="item-media text-color-custom"><i class="f7-icons icon-live-address "></i></div>
+                            <div class="item-inner">
+                                <div class="item-title item-label text-color-lightgray">{{@global.LANGUAGE.ACCOUNT_SETTINGS_MSG09}}</div>
+                                <div class="item-input-wrap ">
+                                    <textarea name="Address" class="text-color-white" maxlength="200" placeholder="{{@global.LANGUAGE.ACCOUNT_SETTINGS_MSG09}}" class="min-height-90">{{Address}}</textarea>
+                                </div>
+                            </div>
+                            <div @click="showMapInModal" class="link margin-right">
+                                <i class="f7-icons icon-live-address text-color-custom"></i>
+                            </div>
+                        </li>
+                        <li class="item-content item-input ">
+                            <div class="item-media text-color-custom"><i class="f7-icons icon-live-fuel "></i></div>
+                            <div class="item-inner">
+                                <div class="item-title item-label text-color-lightgray">{{@global.LANGUAGE.ASSET_ADD_FUEL_MSG001}}</div>
+                                <div class="item-input-wrap ">
+                                    <input type="text" name="PetrolStation" class="text-color-white" value="{{PetrolStation}}" placeholder="{{@global.LANGUAGE.ASSET_ADD_FUEL_MSG001}}" maxlength="200" required validate>
+                                </div>
+                            </div>
+                        </li>
+                        <li class="item-content item-input ">
+                            <div class="item-media text-color-custom"> <i class="f7-icons icon-live-fuel "></i> </div>
+                            <div class="item-inner">
+                                <div class="item-title item-label text-color-lightgray">{{@global.LANGUAGE.ASSET_ADD_FUEL_MSG002}}</div>
+                                <div class="item-input-wrap ">
+                                    <input type="tel" name="FuelAmount" class="text-color-white" value="{{FuelAmount}}" placeholder="{{@global.LANGUAGE.ASSET_ADD_FUEL_MSG002}}" maxlength="200" pattern="[0-9.]*" data-error-message="Only numbers please!" required validate>
+                                </div>
+                            </div>
+                        </li>
+                        <li class="item-content item-input ">
+                            <div class="item-media text-color-custom"><i class="f7-icons icon-live-fuel "></i></div>
+                            <div class="item-inner">
+                                <div class="item-title item-label text-color-lightgray">{{@global.LANGUAGE.ASSET_ADD_FUEL_MSG003}}</div>
+                                <div class="item-input-wrap ">
+                                    <input type="text" name="FuelType" class="text-color-white" value="{{FuelType}}" maxlength="200" placeholder="{{@global.LANGUAGE.ASSET_ADD_FUEL_MSG003}}" required validate>
+                                </div>
+                            </div>
+                        </li>
+                        <li class="item-content item-input ">
+                            <div class="item-media text-color-custom"><i class="f7-icons icon-menu-credits "></i></div>
+                            <div class="item-inner">
+                                <div class="item-title item-label text-color-lightgray">{{@global.LANGUAGE.ASSET_ADD_FUEL_MSG004}}</div>
+                                <div class="item-input-wrap ">
+                                    <input type="tel" name="Price" class="text-color-white" value="{{Price}}" maxlength="200" placeholder="{{@global.LANGUAGE.ASSET_ADD_FUEL_MSG004}}" required validate>
+                                </div>
+                            </div>
+                        </li>
+                        <li class="item-content item-input ">
+                            <div class="item-media text-color-custom"><i class="f7-icons icon-notes "></i></div>
+                            <div class="item-inner">
+                                <div class="item-title item-label text-color-lightgray">{{@global.LANGUAGE.ASSET_ADD_FUEL_MSG005}}</div>
+                                <div class="item-input-wrap ">
+                                    <textarea name="Notes" maxlength="200" class="text-color-white" placeholder="{{@global.LANGUAGE.ASSET_ADD_FUEL_MSG005}}" class="resizable"></textarea>
+                                </div>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+
+            </form>
+        </div>
+</template>
+
+
+<script>
+  // script must return component object
+    return {
+        data: function () {
+            let self = this;
+
+            return {
+                PageTitle: LANGUAGE.ASSET_ADD_FUEL_MSG000,
+
+                AssetImg: `<img class="user-img" src="resources/images/no-photo.svg" alt="">`,
+                Address: '',
+                IMEI: decodeURIComponent(self.$route.query.imei),
+                PetrolLat: '',
+                PetrolLng: '',
+
+                MapId: 'map-' + self.$app.utils.id(),
+                Map: null,
+            };
+        },
+        methods: {
+            showMapInModal: function (){
+                let self = this;
+                self.$app.popup.create({
+                    closeByBackdropClick: false,
+                    content:
+                      `<div class="popup edit-image-popup">
+                            <div class="view">
+                                <div class="page">
+                                    <div class="navbar">
+                                        <div class="navbar-bg"></div>
+                                        <div class="navbar-inner">
+                                            <div class="left">
+                                                <a href="#" class="link popup-close icon-only">
+                                                    <i class="f7-icons">close</i>
+                                                </a>
+                                            </div>
+                                            <div class="title">${ LANGUAGE.ASSET_ADD_FUEL_MSG006 }</div>
+                                            <div class="right">
+                                                <a href="#" class="link savePetrolLocation" >
+                                                    <i class="f7-icons">check</i>
+                                                </a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="page-content">
+                                       <div id="${ self.MapId }" class="map"></div>
+
+                                    </div>
+                                </div>
+                            </div>
+                        </div>`,
+                    on: {
+                        opened: function (popup) {
+                            self.Map = Protocol.Helper.createMap({ target: self.MapId, latLng: [0,0], zoom: 2 });
+                            let MarkersGroup = L.markerClusterGroup({'maxClusterRadius':35,});
+                            let marker = L.marker([self.PetrolLat, self.PetrolLng], { icon: Protocol.MarkerIcon[12]})
+                            marker.bindTooltip(LANGUAGE.ASSET_ADD_FUEL_MSG007);
+                            marker.addTo(MarkersGroup);
+                            if (MarkersGroup.getBounds().isValid()) {
+                                MarkersGroup.addTo(self.Map);
+                                self.Map.fitBounds(MarkersGroup.getBounds(),{padding:[16,16], maxZoom: 15});
+                            }
+                            self.Map.on('click', function (e){
+                                marker.setLatLng(e.latlng)
+                            });
+                            popup.$el.on('click', '.savePetrolLocation', function (){
+                                self.setPetrolAddress(marker.getLatLng())
+                                popup.close()
+                            })
+                        },
+                        closed: function (popup) {
+                            self.Map.remove()
+                            popup.$el.remove();
+                            popup.destroy()
+                        }
+                    }
+                }).open();
+
+            },
+            setPetrolAddress: function(latlng){
+                let self = this
+                self.$setState({
+                    PetrolLat: latlng.lat,
+                    PetrolLng: latlng.lng
+                })
+                self.$app.progressbar.show('custom');
+                Protocol.Helper.getAddressByGeocoder(latlng, function(address){
+                    self.$app.utils.nextTick(()=>{
+                        self.$app.progressbar.hide();
+                    });
+                    self.$setState({
+                        Address: address
+                    })
+                });
+            },
+            showUploadPhotoOptions: function(){
+                let self = this;
+                self.$app.actions.create({
+                    buttons: [
+                        {
+                            //text: LANGUAGE.COM_MSG074,
+                            text: `<div class="action_button_wrapper">
+                                    <div class="action_button_block action_button_media text-color-custom">
+                                        <i class="f7-icons icon-takep-hoto size-20"></i>
+                                    </div>
+                                    <div class="action_button_block action_button_text text-color-white">
+                                        ${ LANGUAGE.COM_MSG074 }
+                                    </div>
+                                </div>`,
+                            onClick: function () {
+                                self.getImageFromDevice(1);
+                            }
+                        },
+                        {
+                            //text: LANGUAGE.PROMPT_MSG025,
+                            text: `<div class="action_button_wrapper">
+                                    <div class="action_button_block action_button_media text-color-custom">
+                                        <i class="f7-icons icon-upload-file size-20"></i>
+                                    </div>
+                                    <div class="action_button_block action_button_text text-color-white">
+                                        ${ LANGUAGE.PROMPT_MSG025 }
+                                    </div>
+                                </div>`,
+                            onClick: function () {
+                                $$('#ImageInput').click();
+                            }
+                        },
+
+
+                        {
+                            //text: LANGUAGE.COM_MSG001,
+                            text: `<div class="action_button_wrapper">
+                                    <div class="action_button_block action_button_media text-color-red">
+                                        <i class="f7-icons icon-close size-16"></i>
+                                    </div>
+                                    <div class="action_button_block action_button_text">
+                                        ${ LANGUAGE.COM_MSG001 }
+                                    </div>
+                                </div>`,
+                            color: 'red',
+                        },
+                    ]
+                }).open();
+            },
+            getImageFromDevice: function(source=1){
+                let self = this;
+                if (!navigator.camera) {
+                    self.$app.methods.customDialog({title:LANGUAGE.PROMPT_MSG100, text: LANGUAGE.PROMPT_MSG099});
+                    return;
+                }
+                let options = {
+                    quality: 50,
+                    destinationType: Camera.DestinationType.DATA_URL,
+                    sourceType: source, // 0:Photo Library, 1=Camera, 2=Saved Album
+                    encodingType: 0 // 0=JPG 1=PNG
+                };
+
+                navigator.camera.getPicture(
+                  function(imgData) {
+                      self.loadEditImageModal("data:image/jpeg;base64," + imgData);
+                  },
+                  function() {
+                      self.$app.methods.customDialog({title:LANGUAGE.PROMPT_MSG100, text: LANGUAGE.PROMPT_MSG101});
+                      //alert('Error taking picture', 'Error');
+                  },
+                  options);
+            },
+            previewFile: function(file){
+                let self = this;
+                self.$app.progressbar.show('custom');
+
+                let reader  = new FileReader();
+
+                reader.onloadend = function () {
+                    // preview.src = reader.result;
+                    self.loadEditImageModal(reader.result);
+                };
+
+                if (file) {
+                    reader.readAsDataURL(file); //reads the data as a URL
+                } else{
+                    self.$app.dialog.close();
+                }
+            },
+            loadEditImageModal: function(src){
+                let self = this;
+                self.$app.progressbar.hide();
+                let dynamicPopup = self.$app.popup.create({
+                    closeByBackdropClick: false,
+                    content:
+                      `<div class="popup edit-image-popup">
+                            <div class="view">
+                                <div class="page">
+                                    <div class="navbar">
+                                        <div class="navbar-bg"></div>
+                                        <div class="navbar-inner">
+                                            <div class="left">
+                                                <a href="#" class="link popup-close icon-only">
+                                                    <i class="f7-icons">close</i>
+                                                </a>
+                                            </div>
+                                            <div class="title">` + LANGUAGE.PROMPT_MSG027 + `</div>
+                                            <div class="right">
+                                                <a href="#" class="link saveEditedImage" >
+                                                    <i class="f7-icons">check</i>
+                                                </a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="page-content">
+                                        <div class="asset_img_before_crop" style="">
+                                            <img style="max-width: 980px; max-height: 980px; " id="image" src="` + src + `">
+                                        </div>
+                                        <button type="button" class="button button-fill redo"><span class="f7-icons">forward</span></button>
+                                        <button type="button" class="button button-fill undo"><span class="f7-icons">reply</span></button>
+
+                                    </div>
+                                </div>
+                            </div>
+                        </div>`,
+                    on: {
+                        opened: function (popup) {
+                            let cropper = self.initCropper();
+                            $$('.saveEditedImage').on('click', function(){
+                                self.saveImage(cropper);
+                            });
+                            $$('.redo').on('click', function(){
+                                cropper.rotate(90);
+                            });
+                            $$('.undo').on('click', function(){
+                                cropper.rotate(-90);
+                            });
+                        },
+                        closed: function (popup) {
+                            popup.$el.remove();
+                            popup.destroy()
+                            //dynamicPopup.destroy()
+                        }
+                    }
+                });
+                dynamicPopup.open();
+
+            },
+            initCropper: function (){
+                let image = document.getElementById('image');
+                let cropper = new Cropper(image, {
+                    aspectRatio: 1/1,
+                    dragMode:'move',
+                    rotatable:true,
+                    minCropBoxWidth:200,
+                    minCropBoxHeight:200,
+                    minCanvasWidth:200,
+                    minCanvasHeight:200,
+                    minContainerWidth:200,
+                    minContainerHeight:200,
+                    crop: function(data) {
+                    }
+                });
+                return cropper;
+            },
+            saveImage: function(cropper){
+                let self = this;
+
+                let resImg =  cropper.getCroppedCanvas({
+                    width: 200,
+                    height: 200
+                }).toDataURL();
+
+                let assetImg = {
+                    data: resImg,
+                    id: `Fuel_Purchase_${self.IMEI}_${new Date().getTime()}`
+                };
+
+                self.$app.dialog.progress();
+                self.$app.request.promise.post(API_URL.PHOTO_UPLOAD, assetImg, 'json')
+                  .then(function (result) {
+                      self.$app.dialog.close();
+                      if(result.data.MajorCode === '000') {
+                          console.log(result.data);
+
+                          self.$setState({
+                              AssetImg: `<img class="user-img" data-name="${result.data.Data}" src="${API_DOMIAN9}Attachment/images/${result.data.Data+'?'+ new Date().getTime()}" alt="">`
+                          });
+                      }else{
+                          self.$app.dialog.alert(LANGUAGE.PROMPT_MSG023 + `<br>MajorCode: ${result.data.MajorCode}<br>MinorCode: ${result.data.MinorCode}`);
+                      }
+                      self.$app.popup.close();
+                  })
+                  .catch(function (err) {
+                      console.log(err);
+                      self.$app.dialog.close();
+                      if (err && err.status === 404){
+                          self.$app.dialog.alert(LANGUAGE.PROMPT_MSG026);
+                      }else{
+                          self.$app.dialog.alert(LANGUAGE.PROMPT_MSG003);
+                      }
+                  });
+            },
+
+            saveForm: function(data, url){
+                let self = this;
+
+                self.$app.preloader.show();
+                self.$app.request.promise.post(url, data, 'json')
+                    .then(function (result) {
+                        //console.log(result)
+                        if(result.data.MajorCode === '000') {
+
+                            self.$app.methods.customDialog({title: LANGUAGE.PROMPT_MSG139, text: LANGUAGE.ASSET_ADD_FUEL_MSG008})
+                            mainView.router.back();
+                        }else{
+                            self.$app.dialog.alert(LANGUAGE.PROMPT_MSG023 + `<br>MajorCode: ${result.data.MajorCode}<br>MinorCode: ${result.data.MinorCode}`);
+                        }
+                    })
+                    .finally(function () {
+                        self.$app.preloader.hide();
+                    })
+                    .catch(function (err) {
+                        console.log(err);
+                        if (err && err.status === 404){
+                            self.$app.dialog.alert(LANGUAGE.PROMPT_MSG002);
+                        }else{
+                            self.$app.dialog.alert(LANGUAGE.PROMPT_MSG003);
+                        }
+                    });
+            },
+        },
+
+        on: {
+            pageInit: function (e, page) {
+                let self = this;
+
+                if(POSINFOASSETLIST[self.IMEI]?.posInfo?.lat && POSINFOASSETLIST[self.IMEI]?.posInfo?.lng){
+
+                    self.setPetrolAddress({lat: POSINFOASSETLIST[self.IMEI].posInfo.lat, lng: POSINFOASSETLIST[self.IMEI].posInfo.lng})
+
+                }
+
+                page.$el.find('[name="ImageInput"]').on('change', function(){
+                    let noError = 1;
+                    console.log(this)
+                    let file = this.files[0];
+                    let maxFileSize = 5; // in MB
+                    if (file) {
+                        //validate file extension(filetype)
+                        if (!/image/.test(file.type)) {
+                            noError = 0;
+                            self.$app.methods.customNotification({title:LANGUAGE.PROMPT_MSG028});
+                        }
+                        //validate file size
+                        if ( file.size > maxFileSize * 1024 * 1024 ) {
+                            console.log('here');
+                            noError = 0;
+                            self.$app.methods.customNotification({title:LANGUAGE.PROMPT_MSG029 + ' ' + maxFileSize + LANGUAGE.PROMPT_MSG030});
+                        }
+                        if (noError) {
+                            self.previewFile(file);
+                        }
+                    }
+                });
+
+                let form = page.$el.find('[name = "AssetAddFuelForm"]');
+                $$(form).on('submit', function(e){
+                    e.preventDefault();
+                    let userInfo = self.$app.methods.getFromStorage('userInfo');
+                    let url = API_URL.PURCHASE_FUEL;
+                    let data = {
+                        MajorToken: self.$app.data.MajorToken,
+                        MinorToken: self.$app.data.MinorToken,
+
+                        IMEI: self.IMEI,
+                        Lat: self.PetrolLat,
+                        Lng: self.PetrolLng,
+                        Address: page.$el.find('[name="Address"]').val(),
+                        PetrolStation: page.$el.find('[name="PetrolStation"]').val(),
+                        FuelAmount: page.$el.find('[name="FuelAmount"]').val(),
+                        FuelType: page.$el.find('[name="FuelType"]').val(),
+                        Price: page.$el.find('[name="Price"]').val(),
+                        Notes: page.$el.find('[name="Notes"]').val(),
+                        PhotoUrl: page.$el.find('img.user-img').data('name') || '',
+
+                        //AssetName: POSINFOASSETLIST[self.IMEI].Name,
+                        //DriverName: userInfo.FirstName + ' ' + userInfo.SurName,
+                        //DriverCode: '',
+                        /*Email: userInfo.Email,
+                        Phone: userInfo.Mobile,*/
+
+
+
+
+                    };
+
+                    self.saveForm(data, url);
+
+                    return false;
+                });
+
+            },
+            pageAfterOut: function () {
+
+            },
+
+        }
+    };
+</script>

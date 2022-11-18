@@ -1,0 +1,313 @@
+<template>
+	<div data-name="gallery" class="page gallery">
+		<div class="navbar">
+            <div class="navbar-bg"></div>
+            <div class="navbar-inner">
+                <div class="left">
+					{{#if IsCheckAll}}
+					<a href="#" class="link icon-only remove-items">						
+						<i class="f7-icons icon-header-delete"></i>
+					</a>
+					{{else}}					
+                    <a href="#" class="link icon-only back" >
+                        <i class="if-not-ios f7-icons icon-header-arrow-back"></i>
+                        <i class="if-ios icon icon-back"></i>
+                    </a>
+					{{/if}}
+                </div>
+                <div class="title sliding">
+                   Gallery
+                </div>
+                <div class="right">
+                    <a href="#" class="link icon-only sort-photos">
+						<i class="f7-icons icon-header-filter"></i>
+					</a>
+					<a href="#" class="link icon-only toggle-check-item">
+						{{#if IsCheckAll}}
+							<i class="f7-icons icon-close" style="font-size:20px"></i>
+						{{else}}
+							<i class="f7-icons icon-header-apply"></i>
+						{{/if}}
+					</a>
+                </div>
+            </div>
+        </div>
+		<div class="page-content " id="alarm">
+				<div class="block">
+					<div class="list virtual-list photo-list no-hairlines">
+					{{#if ShowPhotoList}}
+						<div key="VirtualPhotoList" class="list media-list virtual-list no-hairlines no-margin no-chevron searchbar-found alarmPhotosList">
+						</div> 
+					{{/if}}
+					</div>
+				</div>
+			</div>
+	</div>
+</template>
+
+<script>
+  // script must return component object
+    return {
+        data: function () {
+            var self = this;
+			let imei = decodeURIComponent(self.$route.query.imei);
+			var ret = {
+				imei,
+				IsReverse: false,
+				IsCheckAll: false,
+				alarmPhotoBrowserArr: [],
+                VirtualAlarmList: false,
+				ShowPhotoList: false,	
+				JSession: ''
+            }; 			
+            return ret;
+        },
+        methods: {
+			getSession: function(){
+				var self = this;  		
+				self.$app.request.promise.get(API_URL.GET_LIVE_SESSION, {}, 'json')
+                .then(function (result) {
+					self.$setState({
+						JSession: result.data.split(',')[1].split('"jsession":"')[1].split('"')[0],
+					});
+					self.getGalleryList();
+				})
+				.catch(function (err) {					
+                    console.log(err);
+                });
+			},
+			
+            getGalleryList: function(){
+				var self = this;  		
+				self.$app.preloader.show();
+				self.$app.request.promise.post(API_URL.GET_ALERTPHOTO_LIST, {"IMEI" : self.imei}, 'json')
+                .then(function (result) {	
+				
+                    if(result.data.MajorCode == '000'){		
+						self.$app.methods.setInStorage({name: 'alarmPhotoList', data: result.data.Data});
+												
+						self.$setState({
+							ShowPhotoList: true,
+						});
+						self.$app.utils.nextFrame(()=>{
+							self.initAlarmPhotoList(result.data.Data);
+						});		
+						self.$app.preloader.hide(); 
+					}else{						
+						self.$app.preloader.hide(); 
+					}
+				})
+				.catch(function (err) {
+					self.$app.preloader.hide(); 
+                    console.log(err);
+                    /*if (callback instanceof Function){
+                        callback([]);
+                    }*/
+                    if (err && err.status === 404){
+                        self.dialog.alert(LANGUAGE.PROMPT_MSG002);
+                    }else{
+                        self.dialog.alert(LANGUAGE.PROMPT_MSG003);
+                    }
+                });				
+            },			
+			
+            removePhotos: function(codes){
+				var self = this;  		
+				console.log('before', codes)
+				self.$app.preloader.show();
+				self.$app.request.promise.post(API_URL.REMOVE_ALERTPHOTO, {"IMEI" : self.imei, "codes" : codes}, 'json')
+                .then(function (result) {	
+					console.log('after', result)
+                    if(result.data.MajorCode == '000'){
+						self.getGalleryList();
+						self.$app.preloader.hide(); 
+					}else{						
+						self.$app.preloader.hide(); 
+					}
+				})
+				.catch(function (err) {
+					self.$app.preloader.hide(); 
+                    console.log(err);
+                    if (err && err.status === 404){
+                        self.dialog.alert(LANGUAGE.PROMPT_MSG002);
+                    }else{
+                        self.dialog.alert(LANGUAGE.PROMPT_MSG003);
+                    }
+                });				
+            },
+			
+            initAlarmPhotoList: function(photoListArr = []){
+                var self = this;
+                
+                var listEl = self.$el.find('.alarmPhotosList');    
+                var photoList = self.$app.methods.getFromStorage("alarmPhotoList");
+				
+				let dateArr = self.$app.methods.sortParseDatePhoto(photoList); 
+				if(self.IsReverse) {dateArr.reverse();}
+                	
+				self.alarmPhotoBrowserArr.length = 0;
+				var photoIndex = 0;
+				         
+                self.VirtualAlarmList = self.$app.virtualList.create({
+                    el: listEl, 
+                    setListHeight: false,
+                    // search item by item
+                    searchAll: function (query, items) {
+						let found = [];
+						for (let i = 0; i < items.length; i++) {
+							if (items[i].title.toLowerCase().indexOf(query.toLowerCase()) >= 0 || query.trim() === '') found.push(i);
+						}
+						return found;
+                    },
+					
+                    //List of array items
+                    items: dateArr,
+                    height: function(item){  
+						let height = 0;
+                        let heightHeader = 40;
+                        let heightElement = 94;
+						let dataLength = 0;
+						dataLength = item.data.length;					
+						
+						if(dataLength%2){
+							height = heightHeader + heightElement*parseFloat((dataLength+1)/2);
+						}else{
+							height = heightHeader + heightElement*parseFloat(dataLength/2);
+						}
+                        return height;
+                    },
+                    // Display the each item using Template7 template parameter
+                    renderItem: function (item, index) {
+						
+                        var ret = '';
+						
+						ret += '	<li>';
+						ret += '	  <div class="item-content">';  
+						ret += '		<div class="item-inner">';
+						ret += '		  <div class="item-title-row">';
+						ret += '			<div class="item-title">' + item.title + '</div>  ';          
+						ret += '		  </div>          ';
+						ret += '		  <div class="item-text">';
+						ret += '			<div class="row">';
+						
+						for (let d = 0; d < item.data.length; d ++){	
+														
+								self.alarmPhotoBrowserArr.push('https://securetrack.co/6611/3/5?Type=3&FLENGTH='+item.data[d].Length+'&FOFFSET='+item.data[d].Offset+'&FPATH='+item.data[d].Path+'&MTYPE=1&SAVENAME='+item.data[d].Time+'.JPEG&jsession='+self.JSession);
+								ret += '<div class="col-50">';
+									ret +='<label class="checkbox check-item photo-check-item display-none">';
+									ret +='<input type="checkbox" name="photo-check" file-name="'+item.data[d].Code+'" />';
+									ret +='<i class="f7-icons">check</i>';
+									ret +='</label>';
+								ret += '<a href="#" class="pb-standalone-dark pb-standalone-dark-alarm" data-index="'+photoIndex+'" data-photo="'+item.data[d].Code+'">' +
+									'<div class="item-content">' +
+										'<div class="item-media photo-item-media">' +
+											'<img class="item-path photo-path" data-path="https://securetrack.co/6611/3/5?Type=3&FLENGTH='+item.data[d].Length+'&FOFFSET='+item.data[d].Offset+'&FPATH='+item.data[d].Path+'&MTYPE=1&SAVENAME='+item.data[d].Time+'.JPEG&jsession='+self.JSession+'" src="https://securetrack.co/6611/3/5?Type=3&FLENGTH='+item.data[d].Length+'&FOFFSET='+item.data[d].Offset+'&FPATH='+item.data[d].Path+'&MTYPE=1&SAVENAME='+item.data[d].Time+'.JPEG&jsession='+self.JSession+'">' +														
+										'</div>' +
+									'</div>' +
+									'</a>';
+								ret += '</div> ';	
+								photoIndex ++;										
+						}
+					
+						ret += '			</div>';
+						ret += '		  </div>';
+						ret += '		</div>';
+						ret += '	  </div>';
+						ret += '	</li>';
+												
+						return ret;
+                    }
+                });				
+				
+				self.alarmPhotoBrowserObj = self.$app.photoBrowser.create({
+					theme : 'dark',
+					toolbar : false,
+					renderNavbar : function() {
+						return '<div class="navbar"><div class="navbar-inner"><div class="left"><a href="#" class="link icon-only back"><i class="if-not-ios f7-icons icon-header-arrow-back"></i><i class="if-ios icon icon-back"></i></a></div><div class="title title-color-white">Dashcam Photo</div></div></div>    ';
+					},
+					photos : self.alarmPhotoBrowserArr
+				});				
+            }, 
+        },
+        on: {
+            pageInit: function (e, page) {  
+				var self = this;               
+				self.getSession();
+				
+				var page = page.$el.find('.page-content'); 
+
+                page.on('click', '.pb-standalone-dark-alarm', function(e){
+					self.alarmPhotoBrowserObj.open(+($(this).attr('data-index')));
+				});
+				
+				
+				page.on('taphold', '.item-path', function(e){
+					self.$setState({
+                        IsCheckAll: true,
+                    });
+					$('.photo-check-item').removeClass('display-none');
+				});
+				
+				
+				var myPage = $$('.gallery');
+				
+				myPage.on('click', '.toggle-check-item', function(e){
+					let newState = !self.IsCheckAll;
+					self.$setState({
+                        IsCheckAll: newState,
+                    });
+					$('.photo-check-item').toggleClass('display-none');
+				});				
+					
+				myPage.on('click', '.sort-photos', function(e){				
+					let newState = !self.IsReverse;
+					self.$setState({
+                        IsReverse: newState,
+                    });
+					self.$setState({
+                        IsCheckAll: false,
+                    });
+						
+					self.getGalleryList();
+				});						
+					
+				myPage.on('click', '.remove-items', function(e){										
+					var codes = '';
+					
+					var downloadItems = $$('[name="photo-check"]');
+					downloadItems.forEach(function() {
+						if($(this).is(":checked")){
+							codes+=$(this).attr('file-name');
+							codes+=',';
+						}											
+						$(this).removeAttr("checked");
+					});
+					
+					self.removePhotos(codes.slice(0, -1));
+					
+					self.$setState({
+                        IsCheckAll: false,
+                    });
+										
+					$('.photo-check-item').toggleClass('display-none');
+					
+				});	
+				
+				
+				// Pull to refresh content
+				var $ptrContent = $$('.ptr-content');
+				// Add 'refresh' listener on it
+				$ptrContent.on('ptr:refresh', function (e) {
+				  // Emulate 2s loading
+				  setTimeout(function () { // Prepend new list element
+					
+					self.getGalleryList();	
+					//$ptrContent.find('ul').prepend(itemHTML);
+					// When loading done, we need to reset it
+					App.ptr.done(); // or e.detail();
+				  }, 2000);
+				});
+			}
+		}
+    };
+</script>
