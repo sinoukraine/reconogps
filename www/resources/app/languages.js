@@ -575,6 +575,8 @@ window.LanguagePackages= {
 		"ASSET_EDIT_MSG44": "Snow Plow",
 		"ASSET_EDIT_MSG45": "Positive Input",
 		"ASSET_EDIT_MSG46": "Negative Input",
+		"ASSET_EDIT_MSG47": "Dealer Name",
+		"ASSET_EDIT_MSG48": "Dealer Phone",
 
 		"ASSET_PROTECT_MSG00": "Position",
 		"ASSET_PROTECT_MSG01": "Upgrade to Live",

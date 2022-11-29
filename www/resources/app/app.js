@@ -59,7 +59,7 @@ API_URL.URL_ROUTE = "https://www.google.com/maps/dir/?api=1&destination={0},{1}"
 API_URL.URL_ROUTE_IOS = "maps://maps.apple.com/maps?daddr={0},{1}";
 API_URL.URL_SUPPORT = "https://support.reconogps.com/";
 API_URL.URL_RENEWAL = "https://renewal.reconogps.com/"; //forms.quiktrak.com.au/renewal
-API_URL.URL_REPORT_THEFT = "https://forms.quiktrak.com.au/report-theft/";
+API_URL.URL_REPORT_THEFT =  "http://theft.reconogps.com/"; //"https://forms.quiktrak.com.au/report-theft/";
 API_URL.URL_UPGRADE = "https:/activation.reconogps.com/"; //activationreconogps.cartrack.co
 API_URL.REFERRAL_PROGRAM = "https://forms.quiktrak.com.au/referral-program/";
 API_URL.URL_USER_GUIDE = "https://manuals.reconogps.com/app-guide.pdf";
